@@ -1,4 +1,31 @@
 import { G } from "@/lib/theme";
 import { Dot } from "@/components/ui-primitives";
-const TICKS = ["Brazil vs Mexico O2.5 ✓ WON","Palmeiras BTTS ✓ WON","Argentina Over 2.5 82%","🏆 WC2026 in 11 DAYS","Mexico vs S.Africa Jun 11","Brazil vs Morocco Jun 13","USA vs Paraguay Jun 12","France vs Peru Jun 15","Argentina vs Nigeria Jun 14"];
-export function Ticker() { const all = [...TICKS, ...TICKS]; return (<div style={{overflow:"hidden",background:"#070E1A",borderBottom:`1px solid ${G.border}`,height:32,display:"flex",alignItems:"center"}}><div style={{display:"flex",width:"max-content",animation:"tick 50s linear infinite"}}>{all.map((t,i)=>(<span key={i} style={{padding:"0 32px",fontFamily:"monospace",fontSize:11,whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:8,color:G.dim}}><Dot c={t.includes("WON")?G.green:t.includes("🏆")?G.gold:G.accent} pulse />{t}<span style={{color:G.muted,marginLeft:20}}>◆</span></span>))}</div></div>); }
+
+const TICKS = [
+  "Brazil vs Mexico O2.5 ✓ WON",
+  "Palmeiras BTTS ✓ WON",
+  "Argentina Over 2.5 82%",
+  "🏆 WC2026 in 11 DAYS",
+  "Mexico vs S.Africa Jun 11",
+  "Brazil vs Morocco Jun 13",
+  "USA vs Paraguay Jun 12",
+  "France vs Peru Jun 15",
+  "Argentina vs Nigeria Jun 14",
+];
+
+export function Ticker() {
+  const all = [...TICKS, ...TICKS];
+  return (
+    <div style={{ overflow: "hidden", background: "#070E1A", borderBottom: `1px solid ${G.border}`, height: 32, display: "flex", alignItems: "center" }}>
+      <div style={{ display: "flex", width: "max-content", animation: "tick 50s linear infinite" }}>
+        {all.map((t, i) => (
+          <span key={i} style={{ padding: "0 32px", fontFamily: "monospace", fontSize: 11, whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 8, color: G.dim }}>
+            <Dot c={t.includes("WON") ? G.green : t.includes("🏆") ? G.gold : G.accent} pulse />
+            {t}
+            <span style={{ color: G.muted, marginLeft: 20 }}>◆</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
