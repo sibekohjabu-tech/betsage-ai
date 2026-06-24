@@ -1,11 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { G } from "@/lib/theme";
 import { WC_DAYS, WC_FIXTURES, WC_GROUPS, WC_OUTRIGHTS } from "@/lib/data";
 import { Dot, Chip, Card, Card2, SBtn, PBar } from "@/components/ui-primitives";
 interface WCPageProps { onUpgrade: () => void; }
 export function WCPage({ onUpgrade }: WCPageProps) {
   const [tab, setTab] = useState("fixtures"); const [gf, setGf] = useState("ALL");
-  const filtered = gf === "ALL" ? WC_FIXTURES : WC_FIXTURES.filter((f) => f.group === gf);
+  const [tab, setTab] = useState("fixtures");
+const [gf, setGf] = useState("ALL");
+const [fixtures, setFixtures] = useState<any[]>([]);
+
+useEffect(() => {
+  fetch("/api/football/fixtures")
+    .then((r) => r.json())
+    .then((data) => {
+      console.log(data);
+      setFixtures(data.fixtures || []);
+    })
+    .catch(console.error);
+}, []);
+
+const filtered = fixtures;
   return (<div style={{ padding: "28px 24px", maxWidth: 1060 }}>
     <div style={{ background: "linear-gradient(135deg,#0A1C35,#081428)", border: "1px solid rgba(0,229,255,.2)", borderRadius: 16, padding: "22px 24px", marginBottom: 22, position: "relative", overflow: "hidden" }}><div style={{ position: "absolute", right: 28, top: "50%", transform: "translateY(-50%)", textAlign: "center" }}><div style={{ fontSize: 52, fontWeight: 700, color: G.accent, fontFamily: "monospace", lineHeight: 1 }}>{WC_DAYS}</div><div style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>DAYS TO GO</div></div><div style={{ maxWidth: "70%" }}><div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}><Dot c={G.accent} pulse /><span style={{ fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 1 }}>FIFA WORLD CUP 2026 · NORTH AMERICA</span></div><div style={{ fontSize: 28, fontWeight: 900, marginBottom: 6 }}>🏆 World Cup 2026 Betting Hub</div><div style={{ color: G.dim, fontSize: 13, marginBottom: 12 }}>48 teams · 104 matches · Jun 11 – Jul 19 · USA, Canada & Mexico</div></div></div>
     <div style={{ display: "flex", gap: 8, marginBottom: 22, flexWrap: "wrap" }}>{[["fixtures","⚽ Fixtures & Picks"],["groups","🗂️ Groups"],["outrights","🏆 Outrights"],["tips","💡 Tips"]].map(([k,l])=>(<SBtn key={k} active={tab===k} onClick={()=>setTab(k)}>{l}</SBtn>))}</div>
