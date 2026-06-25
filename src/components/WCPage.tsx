@@ -14,7 +14,6 @@ export function WCPage({ onUpgrade }: WCPageProps) {
 
   return (
     <div style={{ padding: "28px 24px", maxWidth: 1060 }}>
-      {/* Hero */}
       <div
         style={{
           background: "linear-gradient(135deg,#0A1C35,#081428)",
@@ -26,18 +25,64 @@ export function WCPage({ onUpgrade }: WCPageProps) {
           overflow: "hidden",
         }}
       >
-        <div style={{ position: "absolute", right: 28, top: "50%", transform: "translateY(-50%)", textAlign: "center" }}>
-          <div style={{ fontSize: 52, fontWeight: 700, color: G.accent, fontFamily: "monospace", lineHeight: 1 }}>{WC_DAYS}</div>
-          <div style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>DAYS TO GO</div>
+        <div
+          style={{
+            position: "absolute",
+            right: 28,
+            top: "50%",
+            transform: "translateY(-50%)",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 52,
+              fontWeight: 700,
+              color: G.accent,
+              fontFamily: "monospace",
+              lineHeight: 1,
+            }}
+          >
+            {WC_DAYS}
+          </div>
+          <div style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>
+            DAYS TO GO
+          </div>
         </div>
         <div style={{ maxWidth: "70%" }}>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
             <Dot c={G.accent} pulse />
-            <span style={{ fontSize: 11, fontWeight: 700, color: G.accent, letterSpacing: 1 }}>FIFA WORLD CUP 2026 · NORTH AMERICA</span>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: G.accent,
+                letterSpacing: 1,
+              }}
+            >
+              FIFA WORLD CUP 2026 · NORTH AMERICA
+            </span>
           </div>
-          <div style={{ fontSize: 28, fontWeight: 900, marginBottom: 6 }}>🏆 World Cup 2026 Betting Hub</div>
-          <div style={{ color: G.dim, fontSize: 13, marginBottom: 12 }}>48 teams · 104 matches · Jun 11 – Jul 19 · USA, Canada & Mexico</div>
-          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+          <div style={{ fontSize: 28, fontWeight: 900, marginBottom: 6 }}>
+            🏆 World Cup 2026 Betting Hub
+          </div>
+          <div style={{ color: G.dim, fontSize: 13, marginBottom: 12 }}>
+            48 teams · 104 matches · Jun 11 – Jul 19 · USA, Canada &amp; Mexico
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 24,
+              flexWrap: "wrap",
+            }}
+          >
             {[
               ["Jun 11", "Mexico vs S.Africa"],
               ["Jun 12", "USA vs Paraguay"],
@@ -45,7 +90,16 @@ export function WCPage({ onUpgrade }: WCPageProps) {
               ["Jul 19", "Final · MetLife NJ"],
             ].map(([d, t]) => (
               <div key={d}>
-                <div style={{ color: G.gold, fontWeight: 700, fontSize: 12, fontFamily: "monospace" }}>{d}</div>
+                <div
+                  style={{
+                    color: G.gold,
+                    fontWeight: 700,
+                    fontSize: 12,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {d}
+                </div>
                 <div style={{ fontSize: 12, color: G.dim }}>{t}</div>
               </div>
             ))}
@@ -53,102 +107,342 @@ export function WCPage({ onUpgrade }: WCPageProps) {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 22, flexWrap: "wrap" }}>
-        {([
-          ["fixtures", "⚽ Fixtures & Picks"],
-          ["groups", "🗂️ Groups"],
-          ["outrights", "🏆 Outrights"],
-          ["tips", "💡 Tips"],
-        ] as const).map(([k, l]) => (
-          <SBtn key={k} active={tab === k} onClick={() => setTab(k)}>{l}</SBtn>
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          marginBottom: 22,
+          flexWrap: "wrap",
+        }}
+      >
+        {(
+          [
+            ["fixtures", "⚽ Fixtures &amp; Picks"],
+            ["groups", "🗂️ Groups"],
+            ["outrights", "🏆 Outrights"],
+            ["tips", "💡 Tips"],
+          ] as const
+        ).map(([k, l]) => (
+          <SBtn key={k} active={tab === k} onClick={() => setTab(k)}>
+            {l}
+          </SBtn>
         ))}
       </div>
 
-      {/* Fixtures */}
       {tab === "fixtures" && (
         <>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+              flexWrap: "wrap",
+              marginBottom: 16,
+            }}
+          >
             {["ALL", "A", "B", "C", "D", "E", "F", "G", "H"].map((g) => (
-              <SBtn key={g} sm active={gf === g} onClick={() => setGf(g)}>
+              <SBtn
+                key={g}
+                sm
+                active={gf === g}
+                onClick={() => setGf(g)}
+              >
                 {g === "ALL" ? "All" : g}
               </SBtn>
             ))}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 14 }}>
-            {filtered.map((f, i) => {
-              const gc = WC_GROUPS.find((g) => g.group === f.group)?.group ? G.accent : G.accent;
-              return (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fill,minmax(320px,1fr))",
+              gap: 14,
+            }}
+          >
+            {filtered.map((f, i) => (
+              <div
+                key={i}
+                className="fu"
+                style={{
+                  background: G.card2,
+                  border: `1px solid ${G.border}`,
+                  borderRadius: 12,
+                  padding: 18,
+                  animationDelay: `${i * 0.05}s`,
+                }}
+              >
                 <div
-                  key={i}
-                  className="fu"
                   style={{
-                    background: G.card2,
-                    border: `1px solid ${G.border}`,
-                    borderRadius: 12,
-                    padding: 18,
-                    animationDelay: `${i * 0.05}s`,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: 12,
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                    <div>
-                      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 6 }}>
-                        <span style={{ width: 24, height: 24, borderRadius: 6, background: "rgba(0,229,255,.12)", color: G.accent, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, fontFamily: "monospace" }}>
-                          {f.group}
+                  <div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        alignItems: "center",
+                        marginBottom: 6,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: 6,
+                          background: "rgba(0,229,255,.12)",
+                          color: G.accent,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 11,
+                          fontWeight: 800,
+                          fontFamily: "monospace",
+                        }}
+                      >
+                        {f.group}
+                      </span>
+                      <span style={{ fontSize: 11, color: G.dim }}>
+                        {f.date} · {f.time} · {G["TZ"] || "UTC+2"}
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: 800, fontSize: 17 }}>
+                      {f.home}{" "}
+                      <span
+                        style={{
+                          color: G.muted,
+                          fontWeight: 400,
+                          fontSize: 13,
+                        }}
+                      >
+                        vs
+                      </span>{" "}
+                      {f.away}
+                    </div>
+                    <div style={{ fontSize: 11, color: G.dim, marginTop: 2 }}>
+                      📍 {f.venue}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      background: G.bg,
+                      borderRadius: 8,
+                      padding: "7px 10px",
+                      marginLeft: 10,
+                      flexShrink: 0,
+                      textAlign: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: G.muted,
+                        marginBottom: 4,
+                        fontFamily: "monospace",
+                      }}
+                    >
+                      1 · X · 2
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {[f.h, f.d, f.a].map((o, j) => (
+                        <span
+                          key={j}
+                          style={{
+                            fontWeight: 700,
+                            fontSize: 13,
+                            color: G.gold,
+                            fontFamily: "monospace",
+                          }}
+                        >
+                          {o}
                         </span>
-                        <span style={{ fontSize: 11, color: G.dim }}>{f.date} · {f.time} {G["dim"] ? "" : "UTC+2"}</span>
-                      </div>
-                      <div style={{ fontWeight: 800, fontSize: 17 }}>
-                        {f.home} <span style={{ color: G.muted, fontWeight: 400, fontSize: 13 }}>vs</span> {f.away}
-                      </div>
-                      <div style={{ fontSize: 11, color: G.dim, marginTop: 2 }}>📍 {f.venue}</div>
-                    </div>
-                    <div style={{ background: G.bg, borderRadius: 8, padding: "7px 10px", marginLeft: 10, flexShrink: 0, textAlign: "center" }}>
-                      <div style={{ fontSize: 10, color: G.muted, marginBottom: 4, fontFamily: "monospace" }}>1 · X · 2</div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {[f.h, f.d, f.a].map((o, j) => (
-                          <span key={j} style={{ fontWeight: 700, fontSize: 13, color: G.gold, fontFamily: "monospace" }}>{o}</span>
-                        ))}
-                      </div>
+                      ))}
                     </div>
                   </div>
-                  <div style={{ background: G.bg, borderRadius: 8, padding: "10px 12px", marginBottom: 10, border: `1px solid ${G.border}` }}>
-                    <div style={{ fontSize: 10, color: G.muted, fontWeight: 700, marginBottom: 4 }}>⚡ AI PICK</div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontFamily: "monospace", fontWeight: 700, color: G.accent, fontSize: 13 }}>{f.pick}</div>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <Chip color={f.tag === "SHARP" ? G.green : G.accent} bg={f.tag === "SHARP" ? "rgba(0,255,136,.1)" : "rgba(0,229,255,.1)"}>{f.tag}</Chip>
-                        <span style={{ fontFamily: "monospace", fontWeight: 700, color: G.gold, fontSize: 14 }}>{f.pickOdds}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                    <span style={{ fontSize: 11, color: G.dim }}>AI Probability</span>
-                    <span style={{ fontFamily: "monospace", fontWeight: 700, color: f.prob >= 80 ? G.green : G.accent }}>{f.prob}%</span>
-                  </div>
-                  <PBar v={f.prob} c={f.prob >= 80 ? G.green : G.accent} />
                 </div>
-              );
-            })}
+                <div
+                  style={{
+                    background: G.bg,
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    marginBottom: 10,
+                    border: `1px solid ${G.border}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: G.muted,
+                      fontWeight: 700,
+                      marginBottom: 4,
+                    }}
+                  >
+                    ⚡ AI PICK
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: "monospace",
+                        fontWeight: 700,
+                        color: G.accent,
+                        fontSize: 13,
+                      }}
+                    >
+                      {f.pick}
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Chip
+                        color={
+                          f.tag === "SHARP" ? G.green : G.accent
+                        }
+                        bg={
+                          f.tag === "SHARP"
+                            ? "rgba(0,255,136,.1)"
+                            : "rgba(0,229,255,.1)"
+                        }
+                      >
+                        {f.tag}
+                      </Chip>
+                      <span
+                        style={{
+                          fontFamily: "monospace",
+                          fontWeight: 700,
+                          color: G.gold,
+                          fontSize: 14,
+                        }}
+                      >
+                        {f.pickOdds}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 5,
+                  }}
+                >
+                  <span style={{ fontSize: 11, color: G.dim }}>
+                    AI Probability
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "monospace",
+                      fontWeight: 700,
+                      color: f.prob >= 80 ? G.green : G.accent,
+                    }}
+                  >
+                    {f.prob}%
+                  </span>
+                </div>
+                <PBar
+                  v={f.prob}
+                  c={f.prob >= 80 ? G.green : G.accent}
+                />
+              </div>
+            ))}
           </div>
         </>
       )}
 
-      {/* Groups */}
       {tab === "groups" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 14 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fill,minmax(220px,1fr))",
+            gap: 14,
+          }}
+        >
           {WC_GROUPS.map((g, i) => (
-            <Card2 key={i} style={{ borderColor: "rgba(0,229,255,.12)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(0,229,255,.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontWeight: 800, color: G.accent, fontSize: 14, fontFamily: "monospace" }}>{g.group}</span>
+            <Card2
+              key={i}
+              style={{ borderColor: "rgba(0,229,255,.12)" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 14,
+                }}
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: "rgba(0,229,255,.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontWeight: 800,
+                      color: G.accent,
+                      fontSize: 14,
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {g.group}
+                  </span>
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 16 }}>Group {g.group}</div>
+                <div style={{ fontWeight: 800, fontSize: 16 }}>
+                  Group {g.group}
+                </div>
               </div>
               {g.teams.map((t, j) => (
-                <div key={j} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: j < 3 ? `1px solid ${G.border}` : "none" }}>
-                  <span style={{ fontSize: 13, fontWeight: j === 0 ? 700 : 400, color: j === 0 ? G.text : G.dim }}>{t}</span>
-                  {j === 0 && <span style={{ fontSize: 10, color: G.accent, fontWeight: 700, background: "rgba(0,229,255,.1)", padding: "2px 7px", borderRadius: 4 }}>FAVE</span>}
+                <div
+                  key={j}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 0",
+                    borderBottom:
+                      j < 3 ? `1px solid ${G.border}` : "none",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: j === 0 ? 700 : 400,
+                      color: j === 0 ? G.text : G.dim,
+                    }}
+                  >
+                    {t}
+                  </span>
+                  {j === 0 && (
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: G.accent,
+                        fontWeight: 700,
+                        background: "rgba(0,229,255,.1)",
+                        padding: "2px 7px",
+                        borderRadius: 4,
+                      }}
+                    >
+                      FAVE
+                    </span>
+                  )}
                 </div>
               ))}
             </Card2>
@@ -156,56 +450,176 @@ export function WCPage({ onUpgrade }: WCPageProps) {
         </div>
       )}
 
-      {/* Outrights */}
       {tab === "outrights" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 14 }}>
-          <Card style={{ gridColumn: "1/-1", background: "rgba(0,229,255,.04)", borderColor: "rgba(0,229,255,.2)" }}>
-            <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 6 }}>🏆 Outright Winner Picks — Place Early for Best Value</div>
-            <div style={{ fontSize: 13, color: G.dim }}>Odds will shorten once the tournament begins. AI-ranked by probability.</div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fill,minmax(280px,1fr))",
+            gap: 14,
+          }}
+        >
+          <Card
+            style={{
+              gridColumn: "1/-1",
+              background: "rgba(0,229,255,.04)",
+              borderColor: "rgba(0,229,255,.2)",
+            }}
+          >
+            <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 6 }}>
+              🏆 Outright Winner Picks — Place Early for Best Value
+            </div>
+            <div style={{ fontSize: 13, color: G.dim }}>
+              Odds will shorten once the tournament begins. AI-ranked by
+              probability.
+            </div>
           </Card>
-          {WC_OUTRIGHTS.map((o, i) => {
+          {WC_OUTRIGHTS.map((o, i) => (
             <Card2 key={i}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-              <div>
-                <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 4 }}>{o.team}</div>
-                <div style={{ fontSize: 12, color: G.dim }}>{o.note}</div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: 12,
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 4 }}>
+                    {o.team}
+                  </div>
+                  <div style={{ fontSize: 12, color: G.dim }}>{o.note}</div>
+                </div>
+                <div
+                  style={{
+                    textAlign: "right",
+                    flexShrink: 0,
+                    marginLeft: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 26,
+                      fontWeight: 700,
+                      color: G.gold,
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {o.odds}
+                  </div>
+                  <Chip
+                    color={
+                      o.tag === "SHARP"
+                        ? G.green
+                        : o.tag === "VALUE"
+                        ? G.accent
+                        : G.orange
+                    }
+                    bg={
+                      o.tag === "SHARP"
+                        ? "rgba(0,255,136,.1)"
+                        : o.tag === "VALUE"
+                        ? "rgba(0,229,255,.1)"
+                        : "rgba(251,146,60,.1)"
+                    }
+                  >
+                    {o.tag}
+                  </Chip>
+                </div>
               </div>
-              <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 12 }}>
-                <div style={{ fontSize: 26, fontWeight: 700, color: G.gold, fontFamily: "monospace" }}>{o.odds}</div>
-                <Chip color={o.tag === "SHARP" ? G.green : o.tag === "VALUE" ? G.accent : G.orange} bg={o.tag === "SHARP" ? "rgba(0,255,136,.1)" : o.tag === "VALUE" ? "rgba(0,229,255,.1)" : "rgba(251,146,60,.1)" }>{o.tag}</Chip>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 5,
+                }}
+              >
+                <span style={{ fontSize: 11, color: G.dim }}>
+                  AI Win Probability
+                </span>
+                <span
+                  style={{
+                    fontFamily: "monospace",
+                    fontWeight: 700,
+                    color: G.green,
+                  }}
+                >
+                  {o.prob}%
+                </span>
               </div>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-              <span style={{ fontSize: 11, color: G.dim }}>AI Win Probability</span>
-              <span style={{ fontFamily: "monospace", fontWeight: 700, color: o.prob }>{o.prob}%</span>
-            </div>
-            <PBar v={o.prob} c={G.accent} />
-          </Card2>
+              <PBar v={o.prob} c={G.accent} />
+            </Card2>
           ))}
         </div>
       )}
 
-      {/* Tips */}
       {tab === "tips" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 14 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fill,minmax(280px,1fr))",
+            gap: 14,
+          }}
+        >
           {[
-            { icon: "⚽", title: "Over 2.5 Goals — WC Special", color: G.green, tip: "WC group stage avg 2.8 goals/match. Teams attack-minded as 3 points are crucial. Our #1 WC market." },
-            { icon: "📐", title: "Corners — Big Teams Win Corners", color: G.purple, tip: "Top 10 teams generate 6+ corners vs defensive underdogs. Always include O9.5 Corners in WC accas." },
-            { icon: "🟨", title: "Bookings — Pressure Cooker", color: G.red, tip: "WC group stage avg 3.8 cards. High pressure + mixed referee styles + players on yellow card warnings." },
-            { icon: "⚖️", title: "Handicap — Big Team Value", color: G.accent, tip: "Asian handicap -1.5 when top teams face rank 30+ opponents. Spain, France, Brazil -1.5 are best value." },
-            { icon: "🤝", title: "Draw — Final Group Game Trap", color: G.gold, tip: "Final group game draws occur when one team is already through — 35%+ probability in those fixtures." },
-            { icon: "🎰", title: "WC Accumulators", color: G.orange, tip: "4-leg WC accas with O2.5 Goals = 8x–14x combined odds with 70%+ AI probability. Use our builder." },
+            {
+              icon: "⚽",
+              title: "Over 2.5 Goals — WC Special",
+              color: G.green,
+              tip: "WC group stage averages 2.8 goals/match. Teams attack-minded as 3 points are crucial.",
+            },
+            {
+              icon: "📐",
+              title: "Corners — Big Teams Win Corners",
+              color: G.purple,
+              tip: "Top 10 teams generate 6+ corners vs defensive underdogs.",
+            },
+            {
+              icon: "🟨",
+              title: "Bookings — Pressure Cooker",
+              color: G.red,
+              tip: "WC group stage avg 3.8 cards. High pressure + mixed referee styles.",
+            },
+            {
+              icon: "⚖️",
+              title: "Handicap — Big Team Value",
+              color: G.accent,
+              tip: "Asian handicap -1.5 when top teams face rank 30+ opponents.",
+            },
+            {
+              icon: "🤝",
+              title: "Draw — Final Group Game Trap",
+              color: G.gold,
+              tip: "Final group game draws occur when one team is already through.",
+            },
+            {
+              icon: "🎰",
+              title: "WC Accumulators",
+              color: G.orange,
+              tip: "4-leg WC accas with O2.5 Goals = 8x–14x combined odds.",
+            },
           ].map((t, i) => (
             <Card key={i} style={{ borderColor: `${t.color}20` }}>
               <div style={{ fontSize: 28, marginBottom: 10 }}>{t.icon}</div>
-              <div style={{ fontSeight: 800, fontSize: 14, color: t.color, marginBottom: 8 }}>{t.title}</div>
-              <div style={{ fontSize: 13, color: G.dim, lineHeight: 1.7 }}>{t.tip}</div>
+              <div
+                style={{
+                  fontWeight: 800,
+                  fontSize: 14,
+                  color: t.color,
+                  marginBottom: 8,
+                }}
+              >
+                {t.title}
+              </div>
+              <div style={{ fontSize: 13, color: G.dim, lineHeight: 1.7 }}>
+                {t.tip}
+              </div>
             </Card>
           ))}
         </div>
       )}
 
-      {/* CTA */}
       <Card
         style={{
           marginTop: 24,
@@ -215,8 +629,13 @@ export function WCPage({ onUpgrade }: WCPageProps) {
           padding: "32px 24px",
         }}
       >
-        <div style={{ fontSize: 22, fontWeight: 900, marginBottom: 8 }}>🏆 Get All 104 World Cup AI Picks</div>
-        <div style={{ color: G.dim, fontSize: 14, marginBottom: 20 }}>Pro & Elite subscribers get full WC coverage — every game, AI picks, accas & WhatsApp alerts.</div>
+        <div style={{ fontSize: 22, fontWeight: 900, marginBottom: 8 }}>
+          🏆 Get All 104 World Cup AI Picks
+        </div>
+        <div style={{ color: G.dim, fontSize: 14, marginBottom: 20 }}>
+          Pro &amp; Elite subscribers get full WC coverage — every game, AI picks,
+          accas &amp; WhatsApp alerts.
+        </div>
         <button
           onClick={onUpgrade}
           style={{
@@ -233,7 +652,9 @@ export function WCPage({ onUpgrade }: WCPageProps) {
         >
           Start 7-Day Free Trial 🚀
         </button>
-        <div style={{ fontSize: 12, color: G.muted, marginTop: 8 }}>No charge today · Cancel anytime</div>
+        <div style={{ fontSize: 12, color: G.muted, marginTop: 8 }}>
+          No charge today · Cancel anytime
+        </div>
       </Card>
     </div>
   );
