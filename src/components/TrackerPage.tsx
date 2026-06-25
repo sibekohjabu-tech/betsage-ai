@@ -2,31 +2,168 @@ import { useState } from "react";
 import { G } from "@/lib/theme";
 import { TODAY, TRACKER_DATA } from "@/lib/data";
 import { Chip, Card, StatBox } from "@/components/ui-primitives";
-interface Bet { id: number; date: string; league: string; pick: string; odds: number; units: number; result: "pending" | "won" | "lost"; pnl: number | null; }
+
+interface Bet {
+  id: number;
+  date: string;
+  league: string;
+  pick: string;
+  odds: number;
+  units: number;
+  result: "pending" | "won" | "lost";
+  pnl: number | null;
+}
+
 export function TrackerPage() {
-  const [bets, setBets] = useState<Bet[]>(() => TRACKER_DATA.map((b, i) => ({ ...b, id: i } as Bet)));
+  const [bets, setBets] = useState<Bet[]>(() =>
+    TRACKER_DATA.map((b, i) => ({ ...b, id: i }))
+  );
   const [adding, setAdding] = useState(false);
   const [f, setF] = useState<{ league: string; pick: string; odds: string; units: string; result: "pending" | "won" | "lost" }>({ league: "", pick: "", odds: "", units: "", result: "pending" });
+
   const settled = bets.filter((b) => b.result !== "pending");
   const wins = settled.filter((b) => b.result === "won").length;
   const pnl = bets.reduce((a, b) => a + (b.pnl || 0), 0);
   const roi = settled.length > 0 ? ((pnl / settled.reduce((a, b) => a + b.units, 0)) * 100).toFixed(1) : "0";
+
   function addBet() {
     if (!f.pick || !f.odds || !f.units) return;
-    const p2 = parseFloat(f.odds); const u2 = parseFloat(f.units);
+    const p2 = parseFloat(f.odds);
+    const u2 = parseFloat(f.units);
     const nl = f.result === "won" ? (p2 - 1) * u2 : f.result === "lost" ? -u2 : null;
-    setBets((prev) => [{ id: Date.now(), date: "Today", league: f.league || "Custom", pick: f.pick, odds: p2, units: u2, result: f.result, pnl: nl }, ...prev]);
-    setF({ league: "", pick: "", odds: "", units: "", result: "pending" }); setAdding(false);
+    setBets((prev) => [
+      { id: Date.now(), date: "Today", league: f.league || "Custom", pick: f.pick, odds: p2, units: u2, result: f.result, pnl: nl },
+      ...prev,
+    ]);
+    setF({ league: "", pick: "", odds: "", units: "", result: "pending" });
+    setAdding(false);
   }
-  const inp2: React.CSSProperties = { background: G.card2, border: `1px solid ${G.border}`, borderRadius: 8, padding: "9px 12px", color: G.text, fontFamily: "inherit", fontSize: 13, outline: "none", width: "100%" };
-  return (<div style={{ padding: "28px 24px", maxWidth: 1000 }}>
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,209,102,.07)", border: "1px solid rgba(255,209,102,.18)", borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: G.gold, marginBottom: 16 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: G.gold, animation: "pulse 2s infinite" }} />💰 BET TRACKER · {TODAY}</div>
-    <div style={{ fontSize: 30, fontWeight: 900, marginBottom: 6 }}>Money Tracker</div>
-    <div style={{ color: G.dim, fontSize: 14, marginBottom: 24 }}>Full P&L tracking, ROI, win rate</div>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 22 }}>
-      {[{ label: "Total P&L", value: `${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}u`, color: pnl >= 0 ? G.green : G.red }, { label: "ROI", value: `${parseFloat(roi) >= 0 ? "+" : ""}${roi}%`, color: parseFloat(roi) >= 0 ? G.green : G.red }, { label: "Win Rate", value: `${settled.length > 0 ? ((wins / settled.length) * 100).toFixed(1) : "0"}%`, color: G.accent }, { label: "Record", value: `${wins}W-${settled.length - wins}L`, color: G.text }, { label: "Pending", value: String(bets.filter((b) => b.result === "pending").length), color: G.gold }].map((s, i) => (<StatBox key={i} label={s.label} value={s.value} color={s.color} />))}
+
+  const inp2: React.CSSProperties = {
+    background: G.card2,
+    border: `1px solid ${G.border}`,
+    borderRadius: 8,
+    padding: "9px 12px",
+    color: G.text,
+    fontFamily: "inherit",
+    fontSize: 13,
+    outline: "none",
+    width: "100%",
+  };
+
+  return (
+    <div style={{ padding: "28px 24px", maxWidth: 1000 }}>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,209,102,.07)", border: "1px solid rgba(255,209,102,.18)", borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: G.gold, marginBottom: 16 }}>
+        <span style={{ width: 7, height: 7, borderRadius: "50%", background: G.gold, animation: "pulse 2s infinite" }} />
+        💰 BET TRACKER · {TODAY}
+      </div>
+      <div style={{ fontSize: 30, fontWeight: 900, marginBottom: 6 }}>Money Tracker</div>
+      <div style={{ color: G.dim, fontSize: 14, marginBottom: 24 }}>Full P&L tracking, ROI, win rate — like BetWatch</div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 22 }}>
+        {[
+          { label: "Total P&L", value: `${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}u`, color: pnl >= 0 ? G.green : G.red },
+          { label: "ROI", value: `${parseFloat(roi) >= 0 ? "+" : ""}${roi}%`, color: parseFloat(roi) >= 0 ? G.green : G.red },
+          { label: "Win Rate", value: `${settled.length > 0 ? ((wins / settled.length) * 100).toFixed(1) : "0"}%`, color: G.accent },
+          { label: "Record", value: `${wins}W-${settled.length - wins}L`, color: G.text },
+          { label: "Pending", value: String(bets.filter((b) => b.result === "pending").length), color: G.gold },
+        ].map((s, i) => (
+          <StatBox key={i} label={s.label} value={s.value} color={s.color} />
+        ))}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}>
+        <button
+          onClick={() => setAdding((a) => !a)}
+          style={{
+            background: adding ? "transparent" : G.grad,
+            color: adding ? G.text : "#000",
+            border: adding ? `1px solid ${G.border}` : "none",
+            fontFamily: "inherit",
+            fontWeight: 700,
+            padding: "9px 22px",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontSize: 13,
+          }}
+        >
+          {adding ? "✕ Cancel" : "+ Add Bet"}
+        </button>
+      </div>
+
+      {adding && (
+        <Card style={{ marginBottom: 18 }}>
+          <div style={{ fontWeight: 700, marginBottom: 14 }}>Log a New Bet</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr auto", gap: 10, alignItems: "end" }}>
+            {[
+              ["League", "league", "e.g. EPL"],
+              ["Pick", "pick", "e.g. Over 2.5"],
+              ["Odds", "odds", "e.g. 1.85"],
+              ["Units", "units", "e.g. 2"],
+            ].map(([l, k, ph]) => (
+              <div key={k}>
+                <div style={{ fontSize: 11, color: G.muted, fontWeight: 700, marginBottom: 5 }}>{l.toUpperCase()}</div>
+                <input
+                  value={(f as Record<string, string>)[k]}
+                  onChange={(e) => setF((p) => ({ ...p, [k]: e.target.value }))}
+                  placeholder={ph}
+                  style={inp2}
+                />
+              </div>
+            ))}
+            <div>
+              <div style={{ fontSize: 11, color: G.muted, fontWeight: 700, marginBottom: 5 }}>RESULT</div>
+              <select value={f.result} onChange={(e) => setF((p) => ({ ...p, result: e.target.value as "pending" | "won" | "lost" }))} style={inp2}>
+                <option value="pending">Pending</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+              </select>
+            </div>
+            <button onClick={addBet} style={{ background: G.grad, color: "#000", fontFamily: "inherit", fontWeight: 700, padding: "9px 20px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, whiteSpace: "nowrap" }}>
+              Add
+            </button>
+          </div>
+        </Card>
+      )}
+
+      <Card style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px", borderBottom: `1px solid ${G.border}`, fontWeight: 700, fontSize: 15 }}>Bet History</div>
+        <div style={{ padding: "12px 16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 80px 55px 70px 90px", gap: 10, padding: "8px 14px", marginBottom: 8 }}>
+            {["Date", "Pick", "Odds", "Units", "Result", "P&L"].map((h) => (
+              <div key={h} style={{ fontSize: 11, color: G.muted, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>{h}</div>
+            ))}
+          </div>
+          {bets.map((b, i) => (
+            <div
+              key={b.id}
+              className="fu"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "80px 1fr 80px 55px 70px 90px",
+                gap: 10,
+                alignItems: "center",
+                padding: "12px 14px",
+                borderRadius: 10,
+                background: i % 2 === 0 ? "#07101A" : "transparent",
+                marginBottom: 4,
+                animationDelay: `${i * 0.04}s`,
+              }}
+            >
+              <div style={{ fontSize: 11, color: G.muted, fontFamily: "monospace" }}>{b.date}</div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>{b.pick}</div>
+              <div style={{ fontFamily: "monospace", color: G.gold, fontWeight: 700 }}>{b.odds}</div>
+              <div style={{ fontFamily: "monospace", color: G.dim }}>{b.units}u</div>
+              <Chip color={b.result === "won" ? G.green : b.result === "lost" ? G.red : G.gold} bg={b.result === "won" ? "rgba(0,255,136,.1)" : b.result === "lost" ? "rgba(255,69,96,.1)" : "rgba(255,209,102,.1)"}>
+                {b.result === "won" ? "✓ Won" : b.result === "lost" ? "✗ Lost" : "⏳"}
+              </Chip>
+              <div style={{ fontFamily: "monospace", fontWeight: 700, color: b.pnl === null ? G.dim : b.pnl >= 0 ? G.green : G.red }}>
+                {b.pnl === null ? "–" : `${b.pnl >= 0 ? "+" : ""}${b.pnl.toFixed(2)}u`}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
-    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}><button onClick={() => setAdding((a) => !a)} style={{ background: adding ? "transparent" : G.grad, color: adding ? G.text : "#000", border: adding ? `1px solid ${G.border}` : "none", fontFamily: "inherit", fontWeight: 700, padding: "9px 22px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>{adding ? "✕ Cancel" : "+ Add Bet"}</button></div>
-    {adding && <Card style={{ marginBottom: 18 }}><div style={{ fontWeight: 700, marginBottom: 14 }}>Log a New Bet</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr auto", gap: 10, alignItems: "end" }}>{[["League","league","EPL"],["Pick","pick","Over 2.5"],["Odds","odds","1.85"],["Units","units","2"]].map(([l,k,ph])=>(<div key={k}><div style={{ fontSize: 11, color: G.muted, fontWeight: 700, marginBottom: 5 }}>{l.toUpperCase()}</div><input value={(f as any)[k]} onChange={(e)=>setF((p)=>({...p,[k]:e.target.value}))} placeholder={ph} style={inp2}/></div>))}<div><div style={{ fontSize: 11, color: G.muted, fontWeight: 700, marginBottom: 5 }}>RESULT</div><select value={f.result} onChange={(e)=>setF((p)=>({...p,result:e.target.value as any}))} style={inp2}><option value="pending">Pending</option><option value="won">Won</option><option value="lost">Lost</option></select></div><button onClick={addBet} style={{ background: G.grad, color: "#000", fontFamily: "inherit", fontWeight: 700, padding: "9px 20px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13 }}>Add</button></div></Card>}
-    <Card style={{ padding: 0, overflow: "hidden" }}><div style={{ padding: "16px 20px", borderBottom: `1px solid ${G.border}`, fontWeight: 700, fontSize: 15 }}>Bet History</div><div style={{ padding: "12px 16px" }}><div style={{ display: "grid", gridTemplateColumns: "80px 1fr 80px 55px 70px 90px", gap: 10, padding: "8px 14px", marginBottom: 8 }}>{["Date","Pick","Odds","Units","Result","P&L"].map(h=><div key={h} style={{ fontSize: 11, color: G.muted, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>{h}</div>)}</div>{bets.map((b,i)=>(<div key={b.id} className="fu" style={{ display: "grid", gridTemplateColumns: "80px 1fr 80px 55px 70px 90px", gap: 10, alignItems: "center", padding: "12px 14px", borderRadius: 10, background: i%2===0?"#07101A":"transparent", marginBottom: 4 }}><div style={{ fontSize: 11, color: G.muted, fontFamily: "monospace" }}>{b.date}</div><div style={{ fontSize: 13, fontWeight: 600 }}>{b.pick}</div><div style={{ fontFamily: "monospace", color: G.gold, fontWeight: 700 }}>{b.odds}</div><div style={{ fontFamily: "monospace", color: G.dim }}>{b.units}u</div><Chip color={b.result==="won"?G.green:b.result==="lost"?G.red:G.gold} bg={b.result==="won"?"rgba(0,255,136,.1)":b.result==="lost"?"rgba(255,69,96,.1)":"rgba(255,209,102,.1)"}>{b.result==="won"?"✓ Won":b.result==="lost"?"✗ Lost":"⏳"}</Chip><div style={{ fontFamily: "monospace", fontWeight: 700, color: b.pnl===null?G.dim:b.pnl>=0?G.green:G.red }}>{b.pnl===null?"–":`${b.pnl>=0?"+":""}${b.pnl.toFixed(2)}u`}</div></div>))}</div></Card>
-  </div>); }
+  );
+}
