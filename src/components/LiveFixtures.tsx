@@ -1,51 +1,385 @@
 import { useState, useEffect, useCallback } from "react";
 import { G } from "@/lib/theme";
 import { Chip, Card, Dot } from "@/components/ui-primitives";
-interface OddsFixture { id: string; sport_key: string; commence_time: string; home_team: string; away_team: string; bookmakers?: Array<{ key: string; title: string; markets: Array<{ key: string; outcomes: Array<{ name: string; price: number }> }> }> }
-interface LiveFixture { fixture: { id: number; date: string; status: { short: string; long?: string }; elapsed?: number }; league: { id: number; name: string; country: string }; teams: { home: { name: string }; away: { name: string } }; goals: { home: number | null; away: number | null } }
-const LEAGUE_LABELS: Record<string, { name: string; flag: string }> = { soccer_epl: { name: "Premier League", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" }, soccer_uefa_champs_league: { name: "Champions League", flag: "🏆" }, soccer_spain_la_liga: { name: "La Liga", flag: "🇪🇸" }, soccer_germany_bundesliga: { name: "Bundesliga", flag: "🇩🇪" }, soccer_italy_serie_a: { name: "Serie A", flag: "🇮🇹" }, soccer_france_ligue_one: { name: "Ligue 1", flag: "🇫🇷" }, soccer_brazil_campeonato: { name: "Brasileirao", flag: "🇧🇷" }, soccer_usa_mls: { name: "MLS", flag: "🇺🇸" }, soccer_uefa_europa_league: { name: "Europa League", flag: "🏆" } };
-function leagueInfo(key: string) { return LEAGUE_LABELS[key] || { name: key.replace("soccer_", "").toUpperCase(), flag: "⚽" } }
-function formatTime(iso: string) { return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) }
+
+// ── Types ────────────────────────────────────────────────────────────────────
+interface OddsFixture {
+  id: string;
+  sport_key: string;
+  commence_time: string;
+  home_team: string;
+  away_team: string;
+  league_key?: string;
+  bookmakers?: Array<{
+    key: string;
+    title: string;
+    markets: Array<{
+      key: string;
+      outcomes: Array<{ name: string; price: number }>;
+    }>;
+  }>;
+}
+
+interface LiveFixture {
+  fixture: {
+    id: number;
+    date: string;
+    status: { short: string; long?: string };
+    elapsed?: number;
+  };
+  league: { id: number; name: string; country: string };
+  teams: { home: { name: string }; away: { name: string } };
+  goals: { home: number | null; away: number | null };
+}
+
+interface OddsResponse {
+  ok?: boolean;
+  demo?: boolean;
+  error?: string;
+  fixtures: OddsFixture[];
+  remaining?: number;
+  setup?: Record<string, string>;
+}
+
+interface LiveResponse {
+  ok?: boolean;
+  demo?: boolean;
+  error?: string;
+  fixtures: LiveFixture[];
+  count?: number;
+}
+
+// ── League display names ─────────────────────────────────────────────────────
+const LEAGUE_LABELS: Record<string, { name: string; flag: string }> = {
+  soccer_epl: { name: "Premier League", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+  soccer_uefa_champs_league: { name: "Champions League", flag: "🏆" },
+  soccer_spain_la_liga: { name: "La Liga", flag: "🇪🇸" },
+  soccer_germany_bundesliga: { name: "Bundesliga", flag: "🇩🇪" },
+  soccer_italy_serie_a: { name: "Serie A", flag: "🇮🇹" },
+  soccer_france_ligue_one: { name: "Ligue 1", flag: "🇫🇷" },
+  soccer_brazil_campeonato: { name: "Brasileirao", flag: "🇧🇷" },
+  soccer_usa_mls: { name: "MLS", flag: "🇺🇸" },
+  soccer_uefa_europa_league: { name: "Europa League", flag: "🏆" },
+}
+
+function leagueInfo(key: string) {
+  return LEAGUE_LABELS[key] || { name: key.replace("soccer_", "").toUpperCase(), flag: "⚽" }
+}
+
+function formatTime(iso: string) {
+  const d = new Date(iso)
+  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+}
+
+// ── LIVE FIXTURES COMPONENT ──────────────────────────────────────────────────
 export function LiveFixtures() {
-  const [live, setLive] = useState<LiveFixture[]>([]);
-  const [odds, setOdds] = useState<OddsFixture[]>([]);
-  const [liveCount, setLiveCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [demo, setDemo] = useState(false);
-  const [tab, setTab] = useState<"live" | "odds" | "upcoming">("live");
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [live, setLive] = useState<LiveFixture[]>([])
+  const [odds, setOdds] = useState<OddsFixture[]>([])
+  const [liveCount, setLiveCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [demo, setDemo] = useState(false)
+  const [tab, setTab] = useState<"live" | "odds" | "upcoming">("live")
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+
   const fetchData = useCallback(async () => {
     try {
-      const [liveRes, oddsRes] = await Promise.all([fetch("/api/football/live"), fetch("/api/football/odds")]);
-      const liveData = await liveRes.json(); const oddsData = await oddsRes.json();
-      setLive(liveData.fixtures || []); setLiveCount(liveData.count || liveData.fixtures?.length || 0);
-      setOdds(oddsData.fixtures || []); setDemo(liveData.demo || oddsData.demo || false); setLastRefresh(new Date());
-    } catch { /* keep stale data */ }
-    setLoading(false);
-  }, []);
-  useEffect(() => { fetchData(); const interval = setInterval(fetchData, 60000); return () => clearInterval(interval); }, [fetchData]);
-  const upcomingOdds = odds.filter((o) => new Date(o.commence_time) > new Date()).slice(0, 12);
-  return (<div>
-    <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: liveCount > 0 ? "rgba(255,69,96,.08)" : "rgba(0,229,255,.07)", border: `1px solid ${liveCount > 0 ? "rgba(255,69,96,.2)" : "rgba(0,229,255,.18)"}`, borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: liveCount > 0 ? G.red : G.accent }}><Dot c={liveCount > 0 ? G.red : G.accent} pulse />{liveCount > 0 ? `${liveCount} LIVE NOW` : "NO LIVE MATCHES"}</div>
-      {demo && <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,209,102,.07)", border: "1px solid rgba(255,209,102,.18)", borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: G.gold }}>⚠️ Demo Data — Add API keys for live data</div>}
-      {lastRefresh && <span style={{ fontSize: 11, color: G.muted, marginLeft: "auto" }}>Updated {lastRefresh.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</span>}
-      <button onClick={fetchData} disabled={loading} style={{ background: "transparent", border: `1px solid ${G.border}`, color: G.dim, fontFamily: "inherit", fontSize: 11, fontWeight: 700, padding: "5px 12px", borderRadius: 8, cursor: "pointer" }}>🔄 Refresh</button>
+      const [liveRes, oddsRes] = await Promise.all([
+        fetch("/api/football/live"),
+        fetch("/api/football/odds/all"),
+      ])
+
+      const liveData: LiveResponse = await liveRes.json()
+      const oddsData: OddsResponse = await oddsRes.json()
+
+      setLive(liveData.fixtures || [])
+      setLiveCount(liveData.count || liveData.fixtures?.length || 0)
+      setOdds(oddsData.fixtures || [])
+      setDemo(liveData.demo || oddsData.demo || false)
+      setLastRefresh(new Date())
+    } catch {
+      // Silently fail — keep showing stale data
+    }
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    fetchData()
+    const interval = setInterval(fetchData, 60000) // refresh every 60s
+    return () => clearInterval(interval)
+  }, [fetchData])
+
+  const upcomingOdds = odds.filter((o) => new Date(o.commence_time) > new Date()).slice(0, 12)
+
+  return (
+    <div>
+      {/* Live indicator bar */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: liveCount > 0 ? "rgba(255,69,96,.08)" : "rgba(0,229,255,.07)", border: `1px solid ${liveCount > 0 ? "rgba(255,69,96,.2)" : "rgba(0,229,255,.18)"}`, borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: liveCount > 0 ? G.red : G.accent }}>
+          <Dot c={liveCount > 0 ? G.red : G.accent} pulse />
+          {liveCount > 0 ? `${liveCount} LIVE NOW` : "NO LIVE MATCHES"}
+        </div>
+
+        {demo && (
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,209,102,.07)", border: "1px solid rgba(255,209,102,.18)", borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: G.gold }}>
+            ⚠️ Demo Data — Add API keys for live data
+          </div>
+        )}
+
+        {lastRefresh && (
+          <span style={{ fontSize: 11, color: G.muted, marginLeft: "auto" }}>
+            Updated {lastRefresh.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+          </span>
+        )}
+
+        <button onClick={fetchData} disabled={loading} style={{ background: "transparent", border: `1px solid ${G.border}`, color: G.dim, fontFamily: "inherit", fontSize: 11, fontWeight: 700, padding: "5px 12px", borderRadius: 8, cursor: "pointer" }}>
+          🔄 Refresh
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        {([
+          ["live", `🔴 Live (${liveCount})`, liveCount > 0 ? G.red : G.dim],
+          ["odds", "📊 Live Odds", G.gold],
+          ["upcoming", "📅 Upcoming", G.accent],
+        ] as const).map(([k, label, color]) => (
+          <button
+            key={k}
+            onClick={() => setTab(k)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              border: `1px solid ${tab === k ? color : G.border}`,
+              background: tab === k ? `${color}18` : "transparent",
+              color: tab === k ? color : G.dim,
+              fontFamily: "inherit",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* LIVE TAB */}
+      {tab === "live" && (
+        <div>
+          {live.length === 0 && !loading ? (
+            <Card style={{ textAlign: "center", padding: "32px 20px" }}>
+              <div style={{ fontSize: 36, marginBottom: 10 }}>⚽</div>
+              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>No live matches right now</div>
+              <div style={{ fontSize: 13, color: G.dim }}>Matches will appear here when they kick off</div>
+            </Card>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 12 }}>
+              {live.map((m) => {
+                const info = leagueInfo(String(m.league.id))
+                const isLive = m.fixture.status.short !== "NS" && m.fixture.status.short !== "FT"
+                return (
+                  <div
+                    key={m.fixture.id}
+                    style={{
+                      background: G.card2,
+                      border: `1px solid ${isLive ? G.red + "44" : G.border}`,
+                      borderRadius: 12,
+                      padding: "16px 18px",
+                      transition: "border-color .2s",
+                    }}
+                  >
+                    {/* League header */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontSize: 14 }}>{info.flag}</span>
+                        <span style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>{m.league.name}</span>
+                      </div>
+                      {isLive && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,69,96,.1)", padding: "3px 8px", borderRadius: 6 }}>
+                          <Dot c={G.red} pulse />
+                          <span style={{ fontSize: 11, fontWeight: 700, color: G.red }}>
+                            {m.fixture.elapsed ? `${m.fixture.elapsed}'` : m.fixture.status.short}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Teams + Score */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, color: (m.goals.home || 0) > (m.goals.away || 0) ? G.text : G.dim }}>{m.teams.home.name}</div>
+                        <div style={{ fontWeight: 700, fontSize: 15, color: (m.goals.away || 0) > (m.goals.home || 0) ? G.text : G.dim }}>{m.teams.away.name}</div>
+                      </div>
+                      <div style={{ textAlign: "center", minWidth: 70 }}>
+                        <div style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 900, color: G.text, lineHeight: 1 }}>
+                          {m.goals.home ?? "-"}
+                        </div>
+                        <div style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 900, color: G.text, lineHeight: 1 }}>
+                          {m.goals.away ?? "-"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Status footer */}
+                    <div style={{ marginTop: 10, fontSize: 11, color: G.muted, textAlign: "center" }}>
+                      {isLive ? m.fixture.status.long || "In Play" : m.fixture.status.short === "FT" ? "Full Time" : formatTime(m.fixture.date)}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ODDS TAB */}
+      {tab === "odds" && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 14 }}>
+          {upcomingOdds.length === 0 ? (
+            <Card style={{ textAlign: "center", padding: "32px 20px", gridColumn: "1/-1" }}>
+              <div style={{ fontSize: 36, marginBottom: 10 }}>📊</div>
+              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>No odds available</div>
+              <div style={{ fontSize: 13, color: G.dim }}>Add your Odds API key to see live bookmaker odds</div>
+            </Card>
+          ) : (
+            upcomingOdds.map((o) => {
+              const info = leagueInfo(o.sport_key)
+              const bm = o.bookmakers?.[0]
+              const market = bm?.markets?.[0]
+              const outcomes = market?.outcomes || []
+              const homeOdds = outcomes.find((x) => x.name === o.home_team)?.price
+              const drawOdds = outcomes.find((x) => x.name === "Draw")?.price
+              const awayOdds = outcomes.find((x) => x.name === o.away_team)?.price
+              const kickoff = new Date(o.commence_time)
+              const isToday = kickoff.toDateString() === new Date().toDateString()
+
+              return (
+                <Card key={o.id} style={{ padding: "16px 18px" }}>
+                  {/* League + time */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 14 }}>{info.flag}</span>
+                      <span style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>{info.name}</span>
+                    </div>
+                    <span style={{ fontSize: 11, fontFamily: "monospace", color: isToday ? G.gold : G.dim, fontWeight: 700 }}>
+                      {isToday ? "Today " : ""}
+                      {formatTime(o.commence_time)}
+                    </span>
+                  </div>
+
+                  {/* Teams */}
+                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{o.home_team}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12, color: G.dim }}>vs {o.away_team}</div>
+
+                  {/* Odds row */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                    {[
+                      ["1", homeOdds, o.home_team],
+                      ["X", drawOdds, "Draw"],
+                      ["2", awayOdds, o.away_team],
+                    ].map(([label, price, name]) => (
+                      <div
+                        key={label}
+                        style={{
+                          background: G.bg,
+                          border: `1px solid ${G.border}`,
+                          borderRadius: 8,
+                          padding: "10px 8px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <div style={{ fontSize: 10, color: G.muted, fontWeight: 700, marginBottom: 4 }}>{label}</div>
+                        <div style={{ fontFamily: "monospace", fontSize: 18, fontWeight: 700, color: G.gold }}>
+                          {price ? Number(price).toFixed(2) : "–"}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {bm && (
+                    <div style={{ marginTop: 8, fontSize: 10, color: G.muted, textAlign: "center" }}>
+                      via {bm.title}
+                    </div>
+                  )}
+                </Card>
+              )
+            })
+          )}
+        </div>
+      )}
+
+      {/* UPCOMING TAB */}
+      {tab === "upcoming" && (
+        <div>
+          {upcomingOdds.length === 0 ? (
+            <Card style={{ textAlign: "center", padding: "32px 20px" }}>
+              <div style={{ fontSize: 36, marginBottom: 10 }}>📅</div>
+              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>No upcoming fixtures</div>
+              <div style={{ fontSize: 13, color: G.dim }}>Fixtures will appear when leagues are in season</div>
+            </Card>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>
+              {upcomingOdds.map((o) => {
+                const info = leagueInfo(o.sport_key)
+                const kickoff = new Date(o.commence_time)
+                return (
+                  <div
+                    key={o.id}
+                    style={{
+                      background: G.card2,
+                      border: `1px solid ${G.border}`,
+                      borderRadius: 12,
+                      padding: "14px 16px",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>{info.flag}</span>
+                        <span style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>{info.name}</span>
+                      </div>
+                      <span style={{ fontSize: 11, fontFamily: "monospace", color: G.gold, fontWeight: 700 }}>
+                        {formatTime(o.commence_time)}
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{o.home_team}</div>
+                    <div style={{ fontSize: 13, color: G.dim, marginBottom: 4 }}>vs {o.away_team}</div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* API Setup notice when demo */}
+      {demo && (
+        <Card style={{ marginTop: 20, background: "rgba(255,209,102,.04)", borderColor: "rgba(255,209,102,.15)" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, color: G.gold, marginBottom: 8 }}>🔑 Connect Live Football Data</div>
+          <div style={{ fontSize: 13, color: G.dim, lineHeight: 1.7, marginBottom: 12 }}>
+            Right now you're seeing demo data. To get <strong style={{ color: G.text }}>real live odds, fixtures, and scores</strong>, add two free API keys:
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div style={{ background: G.bg, borderRadius: 10, padding: "14px 16px", border: `1px solid ${G.border}` }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: G.accent, marginBottom: 6 }}>The Odds API (Free)</div>
+              <div style={{ fontSize: 12, color: G.dim, lineHeight: 1.6 }}>
+                • 500 credits/month free<br />
+                • Live odds from Bet365, Pinnacle, Betfair<br />
+                • 9 soccer leagues<br />
+                <a href="https://the-odds-api.com/account/" target="_blank" rel="noreferrer" style={{ color: G.accent }}>Get key →</a>
+              </div>
+            </div>
+            <div style={{ background: G.bg, borderRadius: 10, padding: "14px 16px", border: `1px solid ${G.border}` }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: G.green, marginBottom: 6 }}>API-Football (Free)</div>
+              <div style={{ fontSize: 12, color: G.dim, lineHeight: 1.6 }}>
+                • 100 requests/day free<br />
+                • Live scores, fixtures, standings<br />
+                • 1,200+ competitions<br />
+                <a href="https://www.api-football.com/pricing" target="_blank" rel="noreferrer" style={{ color: G.green }}>Get key →</a>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
-    <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>{[["live", `🔴 Live (${liveCount})`, liveCount > 0 ? G.red : G.dim], ["odds", "📊 Live Odds", G.gold], ["upcoming", "📅 Upcoming", G.accent]].map(([k, label, color]) => (
-      <button key={k} onClick={() => setTab(k as any)} style={{ padding: "8px 16px", borderRadius: 8, border: `1px solid ${tab === k ? color : G.border}`, background: tab === k ? `${color}18` : "transparent", color: tab === k ? color : G.dim, fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{label}</button>
-    ))}</div>
-    {tab === "live" && <div>{live.length === 0 && !loading ? <Card style={{ textAlign: "center", padding: "32px 20px" }}><div style={{ fontSize: 36, marginBottom: 10 }}>⚽</div><div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>No live matches right now</div><div style={{ fontSize: 13, color: G.dim }}>Matches appear here when they kick off</div></Card> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: 12 }}>{live.map((m) => { const info = leagueInfo(String(m.league.id)); const isLive = m.fixture.status.short !== "NS" && m.fixture.status.short !== "FT"; return (
-      <div key={m.fixture.id} style={{ background: G.card2, border: `1px solid ${isLive ? G.red + "44" : G.border}`, borderRadius: 12, padding: "16px 18px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 14 }}>{info.flag}</span><span style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>{m.league.name}</span></div>{isLive && <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,69,96,.1)", padding: "3px 8px", borderRadius: 6 }}><Dot c={G.red} pulse /><span style={{ fontSize: 11, fontWeight: 700, color: G.red }}>{m.fixture.elapsed ? `${m.fixture.elapsed}'` : m.fixture.status.short}</span></div>}</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ flex: 1 }}><div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, color: (m.goals.home || 0) > (m.goals.away || 0) ? G.text : G.dim }}>{m.teams.home.name}</div><div style={{ fontWeight: 700, fontSize: 15, color: (m.goals.away || 0) > (m.goals.home || 0) ? G.text : G.dim }}>{m.teams.away.name}</div></div><div style={{ textAlign: "center", minWidth: 70 }}><div style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 900, color: G.text, lineHeight: 1 }}>{m.goals.home ?? "-"}</div><div style={{ fontFamily: "monospace", fontSize: 28, fontWeight: 900, color: G.text, lineHeight: 1 }}>{m.goals.away ?? "-"}</div></div></div>
-        <div style={{ marginTop: 10, fontSize: 11, color: G.muted, textAlign: "center" }}>{isLive ? m.fixture.status.long || "In Play" : m.fixture.status.short === "FT" ? "Full Time" : formatTime(m.fixture.date)}</div>
-      </div>); })}</div>}</div>}
-    {tab === "odds" && <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 14 }}>{upcomingOdds.length === 0 ? <Card style={{ textAlign: "center", padding: "32px 20px", gridColumn: "1/-1" }}><div style={{ fontSize: 36, marginBottom: 10 }}>📊</div><div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>No odds available</div><div style={{ fontSize: 13, color: G.dim }}>Add API keys to see live bookmaker odds</div></Card> : upcomingOdds.map((o) => { const info = leagueInfo(o.sport_key); const bm = o.bookmakers?.[0]; const outcomes = bm?.markets?.[0]?.outcomes || []; const homeOdds = outcomes.find((x) => x.name === o.home_team)?.price; const drawOdds = outcomes.find((x) => x.name === "Draw")?.price; const awayOdds = outcomes.find((x) => x.name === o.away_team)?.price; return (
-      <Card key={o.id} style={{ padding: "16px 18px" }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 14 }}>{info.flag}</span><span style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>{info.name}</span></div><span style={{ fontSize: 11, fontFamily: "monospace", color: G.gold, fontWeight: 700 }}>{formatTime(o.commence_time)}</span></div><div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{o.home_team}</div><div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12, color: G.dim }}>vs {o.away_team}</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>{[["1", homeOdds], ["X", drawOdds], ["2", awayOdds]].map(([label, price]) => (
-        <div key={label as string} style={{ background: G.bg, border: `1px solid ${G.border}`, borderRadius: 8, padding: "10px 8px", textAlign: "center" }}><div style={{ fontSize: 10, color: G.muted, fontWeight: 700, marginBottom: 4 }}>{label}</div><div style={{ fontFamily: "monospace", fontSize: 18, fontWeight: 700, color: G.gold }}>{price ? Number(price).toFixed(2) : "–"}</div></div>
-      ))}</div>{bm && <div style={{ marginTop: 8, fontSize: 10, color: G.muted, textAlign: "center" }}>via {bm.title}</div>}</Card>); })}</div>}
-    {tab === "upcoming" && <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(300px,1fr))", gap: 12 }}>{upcomingOdds.map((o) => { const info = leagueInfo(o.sport_key); return (
-      <div key={o.id} style={{ background: G.card2, border: `1px solid ${G.border}`, borderRadius: 12, padding: "14px 16px" }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}><div style={{ display: "flex", alignItems: "center", gap: 6 }}><span>{info.flag}</span><span style={{ fontSize: 11, color: G.dim, fontWeight: 700 }}>{info.name}</span></div><span style={{ fontSize: 11, fontFamily: "monospace", color: G.gold, fontWeight: 700 }}>{formatTime(o.commence_time)}</span></div><div style={{ fontWeight: 700, fontSize: 14 }}>{o.home_team}</div><div style={{ fontSize: 13, color: G.dim }}>vs {o.away_team}</div></div>); })}</div>}
-    {demo && <Card style={{ marginTop: 20, background: "rgba(255,209,102,.04)", borderColor: "rgba(255,209,102,.15)" }}><div style={{ fontWeight: 700, fontSize: 14, color: G.gold, marginBottom: 8 }}>🔑 Connect Live Football Data</div><div style={{ fontSize: 13, color: G.dim, lineHeight: 1.7, marginBottom: 12 }}>Add two free API keys for real live odds, fixtures, and scores:</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}><div style={{ background: G.bg, borderRadius: 10, padding: "14px 16px", border: `1px solid ${G.border}` }}><div style={{ fontWeight: 700, fontSize: 13, color: G.accent, marginBottom: 6 }}>The Odds API (Free)</div><div style={{ fontSize: 12, color: G.dim, lineHeight: 1.6 }}>• 500 credits/month free<br/>• Live odds from Bet365, Pinnacle<br/>• <a href="https://the-odds-api.com/account/" target="_blank" rel="noreferrer" style={{ color: G.accent }}>Get key →</a></div></div><div style={{ background: G.bg, borderRadius: 10, padding: "14px 16px", border: `1px solid ${G.border}` }}><div style={{ fontWeight: 700, fontSize: 13, color: G.green, marginBottom: 6 }}>API-Football (Free)</div><div style={{ fontSize: 12, color: G.dim, lineHeight: 1.6 }}>• 100 requests/day free<br/>• Live scores, fixtures, standings<br/>• <a href="https://www.api-football.com/pricing" target="_blank" rel="noreferrer" style={{ color: G.green }}>Get key →</a></div></div></div></Card>}
-  </div>); }
+  )
+}
