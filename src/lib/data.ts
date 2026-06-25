@@ -1,14 +1,88 @@
-import { getToday, TZ, getWCDays } from '@/lib/theme';
+import { getToday, TZ, getWCDays } from "@/lib/theme";
+
 export const TODAY = getToday();
 export { TZ };
 export const WC_DAYS = getWCDays();
+
 export type Plan = (typeof PLANS)[number];
-export const PLANS = [{ id:'starter', name:'Starter', price:29, badge:null, features:['3 AI picks/day','⚽ Soccer + 🏀 Basketball','💬 WhatsApp Starter','🤝 Affiliate 20%','🎰 AI Accumulator'] },{ id:'pro', name:'Pro', price:99, badge:'MOST POPULAR', features:['10 AI picks/day','⚽🏀🎾⚾🏟️ All 5 sports','💬 WhatsApp Pro VIP','🌍 World Cup full picks','📊 Value odds engine','⚠️ Sharp money alerts','💰 Bet tracker + P&L'] },{ id:'elite', name:'Elite', price:199, badge:'BEST ROI', features:['Unlimited AI picks','All sports + live bets','💬 Elite Inner Circle','🏆 Complete WC coverage','🎯 Parlay + acca builder','👤 1-on-1 analyst access','💰 Advanced analytics'] }];
-export const WC_FIXTURES = [{date:'Thu 11 Jun',time:'21:00',home:'Mexico',away:'South Africa',group:'A',venue:'Estadio Azteca',h:2.10,d:3.20,a:3.60,pick:'Over 2.5 Goals',pickOdds:1.75,prob:81,tag:'VALUE'},{date:'Fri 12 Jun',time:'03:00',home:'USA',away:'Paraguay',group:'D',venue:'SoFi Stadium',h:1.75,d:3.40,a:5.00,pick:'USA Win & Over 2.5',pickOdds:2.10,prob:78,tag:'SHARP'},{date:'Sat 13 Jun',time:'21:00',home:'Brazil',away:'Morocco',group:'C',venue:'MetLife Stadium',h:1.65,d:3.50,a:6.00,pick:'Brazil Win & Over 2.5',pickOdds:1.90,prob:80,tag:'SHARP'},{date:'Sun 14 Jun',time:'03:00',home:'Argentina',away:'Nigeria',group:'E',venue:'Hard Rock Stadium',h:1.35,d:4.80,a:9.50,pick:'Argentina Win & Over 2.5',pickOdds:1.85,prob:82,tag:'SHARP'},{date:'Sun 14 Jun',time:'21:00',home:'England',away:'Cameroon',group:'G',venue:'AT&T Stadium',h:1.40,d:4.50,a:9.00,pick:'England -1.5 Handicap',pickOdds:1.95,prob:79,tag:'SHARP'},{date:'Mon 15 Jun',time:'03:00',home:'France',away:'Peru',group:'F',venue:'Rose Bowl',h:1.28,d:5.50,a:12.0,pick:'France Win & Over 2.5',pickOdds:1.70,prob:84,tag:'SHARP'},{date:'Mon 15 Jun',time:'21:00',home:'Spain',away:'Cape Verde',group:'H',venue:'Lumen Field',h:1.20,d:6.00,a:15.0,pick:'Spain -2.5 & Over 3.5',pickOdds:2.30,prob:75,tag:'VALUE'},{date:'Tue 16 Jun',time:'21:00',home:'Germany',away:'Costa Rica',group:'C',venue:'Rose Bowl',h:1.30,d:5.20,a:11.0,pick:'Germany Win & Over 2.5',pickOdds:1.75,prob:83,tag:'SHARP'}];
-export const WC_GROUPS = [{group:'A',teams:['Mexico','South Africa','Czechia','South Korea']},{group:'B',teams:['Canada','Bosnia & Herz.','Qatar','Switzerland']},{group:'C',teams:['Brazil','Morocco','Haiti','Scotland']},{group:'D',teams:['USA','Paraguay','Australia','Türkiye']},{group:'E',teams:['Argentina','Nigeria','Poland','Senegal']},{group:'F',teams:['France','Belgium','Peru','Tunisia']},{group:'G',teams:['England','Netherlands','Ecuador','Cameroon']},{group:'H',teams:['Spain','Saudi Arabia','Uruguay','Cape Verde']}];
-export const WC_OUTRIGHTS = [{team:'Argentina 🇦🇷',odds:4.50,prob:22,tag:'SHARP',note:'Defending champions'},{team:'France 🇫🇷',odds:5.00,prob:20,tag:'VALUE',note:'Mbappé in peak form'},{team:'Brazil 🇧🇷',odds:6.00,prob:17,tag:'VALUE',note:'Vinicius Jr key'},{team:'England 🏴',odds:7.00,prob:14,tag:'VALUE',note:'Kane & Bellingham'},{team:'Spain 🇪🇸',odds:8.00,prob:13,tag:'LONG',note:'Highest FIFA ranked'},{team:'Germany 🇩🇪',odds:10.0,prob:10,tag:'LONG',note:'Resurgent form'}];
-type PickTag='SHARP'|'VALUE'|'LONG'; type PickStatus='pending'|'won'|'lost';
-export const SOCCER_PICKS = [{id:1,league:'🌍 WC Friendly',home:'Brazil',away:'Mexico',time:'20:00',pick:'Over 2.5 Goals',odds:1.72,prob:83,ev:'+8.4%',units:2,tag:'SHARP' as PickTag,status:'pending' as PickStatus,corners:'Over 10.5 Corners',btts:'Both Teams Score',handicap:'Brazil -0.5',bookings:'Over 3.5 Cards',draw:'HT Draw @ 2.80'},{id:2,league:'🏆 Copa Sudamericana',home:'Fluminense',away:'Colo-Colo',time:'01:30',pick:'Over 2.5 Goals',odds:1.80,prob:81,ev:'+7.8%',units:2,tag:'VALUE' as PickTag,status:'pending' as PickStatus,corners:'Over 9.5 Corners',btts:'Both Teams Score',handicap:'Fluminense -0.5',bookings:'Over 3.5 Cards',draw:'Draw @ 3.20'},{id:3,league:'🇧🇷 Brasileirao',home:'Palmeiras',away:'Atletico MG',time:'18:00',pick:'Over 2.5 Goals',odds:1.78,prob:82,ev:'+9.0%',units:2,tag:'VALUE' as PickTag,status:'pending' as PickStatus,corners:'Over 9.5 Corners',btts:'Palmeiras Score +1.5',handicap:'Palmeiras -0.5',bookings:'Over 4.5 Cards',draw:'Draw @ 3.10'},{id:4,league:'🌍 WC Friendly',home:'Argentina',away:'Ecuador',time:'02:00',pick:'Over 2.5 Goals',odds:1.65,prob:86,ev:'+11.4%',units:2.5,tag:'SHARP' as PickTag,status:'pending' as PickStatus,corners:'Over 9.5 Corners',btts:'Both Teams Score',handicap:'Argentina -1.5',bookings:'Over 3.5 Cards',draw:'Argentina Win @ 1.50'},{id:5,league:'🇩🇪 Bundesliga PO',home:'Hamburger SV',away:'Magdeburg',time:'15:30',pick:'Over 2.5 Goals',odds:1.90,prob:79,ev:'+6.2%',units:1.5,tag:'VALUE' as PickTag,status:'won' as PickStatus,corners:'Over 10.5 Corners',btts:'Both Teams Score',handicap:'HSV -0.5',bookings:'Over 4.5 Cards',draw:'Draw @ 3.40'},{id:6,league:'🇳🇱 Eredivisie PO',home:'Groningen',away:'NAC Breda',time:'19:00',pick:'Over 2.5 Goals',odds:1.85,prob:80,ev:'+8.0%',units:2,tag:'VALUE' as PickTag,status:'pending' as PickStatus,corners:'Over 9.5 Corners',btts:'Both Teams Score',handicap:'Groningen -0.5',bookings:'Over 3.5 Cards',draw:'Draw @ 3.20'}];
-export const SUBTABS = [{key:'over25',label:'Over 2.5 Goals',icon:'⚽'},{key:'corners',label:'Corners',icon:'📐'},{key:'handicap',label:'Handicap',icon:'⚖️'},{key:'bookings',label:'Bookings',icon:'🟨'},{key:'draw',label:'Draw Bets',icon:'🤝'},{key:'btts',label:'BTTS / +1.5',icon:'🥅'}];
-export const TRACKER_DATA = [{date:'31 May',league:'Copa Sudamericana',pick:'Fluminense Over 2.5',odds:1.80,units:2,result:'pending' as PickStatus,pnl:null},{date:'30 May',league:'WC Friendly',pick:'Brazil vs Mexico BTTS',odds:1.78,units:2,result:'won' as PickStatus,pnl:1.56},{date:'29 May',league:'WC Friendly',pick:'Egypt Over 2.5',odds:1.85,units:1.5,result:'won' as PickStatus,pnl:1.28},{date:'29 May',league:'Brasileirao',pick:'Santos BTTS',odds:1.78,units:2,result:'won' as PickStatus,pnl:1.56},{date:'28 May',league:'Scottish Cup',pick:'Partick O3.5 Cards',odds:1.75,units:2,result:'won' as PickStatus,pnl:1.50},{date:'27 May',league:'Bundesliga',pick:'Bayern Over 2.5',odds:1.55,units:3,result:'won' as PickStatus,pnl:1.65},{date:'27 May',league:'MLB',pick:'Dodgers ML',odds:1.95,units:2,result:'won' as PickStatus,pnl:1.90},{date:'26 May',league:'MLS',pick:'Miami Over 2.5',odds:1.75,units:2,result:'lost' as PickStatus,pnl:-2.00},{date:'25 May',league:'WTA',pick:'Swiatek -3.5 Games',odds:1.80,units:2,result:'won' as PickStatus,pnl:1.60},{date:'24 May',league:'NBA',pick:'Warriors Over 219.5',odds:1.87,units:1.5,result:'won' as PickStatus,pnl:1.31}];
-export const AFFILIATES = [{name:'Mike T.',plan:'Pro',earned:19.80,status:'active' as const},{name:'Sarah K.',plan:'Elite',earned:39.80,status:'active' as const},{name:'James R.',plan:'Starter',earned:5.80,status:'active' as const},{name:'Priya M.',plan:'Pro',earned:19.80,status:'active' as const},{name:'Carlos D.',plan:'Pro',earned:19.80,status:'churned' as const}];
+
+export const PLANS = [
+  { id: "starter", name: "Starter", price: 29, priceId: "price_starter", badge: null as string | null, features: ["3 AI picks/day", "⚽ Soccer + 🏀 Basketball", "💬 WhatsApp Starter", "🤝 Affiliate 20%", "🎰 AI Accumulator"] },
+  { id: "pro", name: "Pro", price: 99, priceId: "price_pro", badge: "MOST POPULAR", features: ["10 AI picks/day", "⚽🏀🎾⚾🏟️ All 5 sports", "💬 WhatsApp Pro VIP", "🌍 World Cup full picks", "📊 Value odds engine", "⚠️ Sharp money alerts", "💰 Bet tracker + P&L"] },
+  { id: "elite", name: "Elite", price: 199, priceId: "price_elite", badge: "BEST ROI", features: ["Unlimited AI picks", "All sports + live bets", "💬 Elite Inner Circle", "🏆 Complete WC coverage", "🎯 Parlay + acca builder", "👤 1-on-1 analyst access", "💰 Advanced analytics"] },
+];
+
+export const WC_FIXTURES = [
+  { date: "Thu 11 Jun", time: "21:00", home: "Mexico", away: "South Africa", group: "A", venue: "Estadio Azteca, Mexico City", h: 2.10, d: 3.20, a: 3.60, pick: "Over 2.5 Goals", pickOdds: 1.75, prob: 81, tag: "VALUE" },
+  { date: "Thu 11 Jun", time: "04:00", home: "South Korea", away: "Czechia", group: "A", venue: "Estadio Akron, Guadalajara", h: 2.40, d: 3.10, a: 3.00, pick: "Over 2.5 Goals", pickOdds: 1.80, prob: 79, tag: "VALUE" },
+  { date: "Fri 12 Jun", time: "21:00", home: "Canada", away: "Bosnia & Herz.", group: "B", venue: "BMO Field, Toronto", h: 1.95, d: 3.30, a: 4.20, pick: "Canada Win + BTTS", pickOdds: 2.20, prob: 77, tag: "VALUE" },
+  { date: "Fri 12 Jun", time: "03:00", home: "USA", away: "Paraguay", group: "D", venue: "SoFi Stadium, Los Angeles", h: 1.75, d: 3.40, a: 5.00, pick: "USA Win & Over 2.5", pickOdds: 2.10, prob: 78, tag: "SHARP" },
+  { date: "Sat 13 Jun", time: "21:00", home: "Brazil", away: "Morocco", group: "C", venue: "MetLife Stadium, New Jersey", h: 1.65, d: 3.50, a: 6.00, pick: "Brazil Win & Over 2.5", pickOdds: 1.90, prob: 80, tag: "SHARP" },
+  { date: "Sun 14 Jun", time: "03:00", home: "Argentina", away: "Nigeria", group: "E", venue: "Hard Rock Stadium, Miami", h: 1.35, d: 4.80, a: 9.50, pick: "Argentina Win & Over 2.5", pickOdds: 1.85, prob: 82, tag: "SHARP" },
+  { date: "Sun 14 Jun", time: "21:00", home: "England", away: "Cameroon", group: "G", venue: "AT&T Stadium, Dallas", h: 1.40, d: 4.50, a: 9.00, pick: "England -1.5 Handicap", pickOdds: 1.95, prob: 79, tag: "SHARP" },
+  { date: "Mon 15 Jun", time: "03:00", home: "France", away: "Peru", group: "F", venue: "Rose Bowl, Los Angeles", h: 1.28, d: 5.50, a: 12.0, pick: "France Win & Over 2.5", pickOdds: 1.70, prob: 84, tag: "SHARP" },
+  { date: "Mon 15 Jun", time: "21:00", home: "Spain", away: "Cape Verde", group: "H", venue: "Lumen Field, Seattle", h: 1.20, d: 6.00, a: 15.0, pick: "Spain -2.5 & Over 3.5", pickOdds: 2.30, prob: 75, tag: "VALUE" },
+  { date: "Tue 16 Jun", time: "21:00", home: "Germany", away: "Costa Rica", group: "C", venue: "Rose Bowl, Los Angeles", h: 1.30, d: 5.20, a: 11.0, pick: "Germany Win & Over 2.5", pickOdds: 1.75, prob: 83, tag: "SHARP" },
+];
+
+export const WC_GROUPS = [
+  { group: "A", teams: ["Mexico", "South Africa", "Czechia", "South Korea"] },
+  { group: "B", teams: ["Canada", "Bosnia & Herz.", "Qatar", "Switzerland"] },
+  { group: "C", teams: ["Brazil", "Morocco", "Haiti", "Scotland"] },
+  { group: "D", teams: ["USA", "Paraguay", "Australia", "Türkiye"] },
+  { group: "E", teams: ["Argentina", "Nigeria", "Poland", "Senegal"] },
+  { group: "F", teams: ["France", "Belgium", "Peru", "Tunisia"] },
+  { group: "G", teams: ["England", "Netherlands", "Ecuador", "Cameroon"] },
+  { group: "H", teams: ["Spain", "Saudi Arabia", "Uruguay", "Cape Verde"] },
+];
+
+export const WC_OUTRIGHTS = [
+  { team: "Argentina 🇦🇷", odds: 4.50, prob: 22, tag: "SHARP", note: "Defending champions · Messi leading the line" },
+  { team: "France 🇫🇷", odds: 5.00, prob: 20, tag: "VALUE", note: "Strong depth · Mbappé in peak form" },
+  { team: "Brazil 🇧🇷", odds: 6.00, prob: 17, tag: "VALUE", note: "Host-continent advantage · Vinicius Jr key" },
+  { team: "England 🏴󠁧󠁢󠁥󠁮󠁧󠁿", odds: 7.00, prob: 14, tag: "VALUE", note: "Favourable group draw · Kane & Bellingham" },
+  { team: "Spain 🇪🇸", odds: 8.00, prob: 13, tag: "LONG", note: "Highest FIFA ranked team in tournament" },
+  { team: "Germany 🇩🇪", odds: 10.0, prob: 10, tag: "LONG", note: "Resurgent form after Euro 2024 redemption" },
+];
+
+type PickStatus = "pending" | "won" | "lost";
+type PickTag = "SHARP" | "VALUE" | "LONG";
+
+export const SOCCER_PICKS = [
+  { id: 1, league: "🌍 WC Friendly", home: "Brazil", away: "Mexico", time: "20:00", pick: "Over 2.5 Goals", odds: 1.72, prob: 83, ev: "+8.4%", units: 2, tag: "SHARP" as PickTag, status: "pending" as PickStatus, corners: "Over 10.5 Corners", btts: "Both Teams Score", handicap: "Brazil -0.5", bookings: "Over 3.5 Cards", draw: "HT Draw @ 2.80" },
+  { id: 2, league: "🏆 Copa Sudamericana", home: "Fluminense", away: "Colo-Colo", time: "01:30", pick: "Over 2.5 Goals", odds: 1.80, prob: 81, ev: "+7.8%", units: 2, tag: "VALUE" as PickTag, status: "pending" as PickStatus, corners: "Over 9.5 Corners", btts: "Both Teams Score", handicap: "Fluminense -0.5", bookings: "Over 3.5 Cards", draw: "Draw @ 3.20" },
+  { id: 3, league: "🇧🇷 Brasileirao", home: "Palmeiras", away: "Atletico MG", time: "18:00", pick: "Over 2.5 Goals", odds: 1.78, prob: 82, ev: "+9.0%", units: 2, tag: "VALUE" as PickTag, status: "pending" as PickStatus, corners: "Over 9.5 Corners", btts: "Palmeiras Score +1.5", handicap: "Palmeiras -0.5", bookings: "Over 4.5 Cards", draw: "Draw @ 3.10" },
+  { id: 4, league: "🌍 WC Friendly", home: "Argentina", away: "Ecuador", time: "02:00", pick: "Over 2.5 Goals", odds: 1.65, prob: 86, ev: "+11.4%", units: 2.5, tag: "SHARP" as PickTag, status: "pending" as PickStatus, corners: "Over 9.5 Corners", btts: "Both Teams Score", handicap: "Argentina -1.5", bookings: "Over 3.5 Cards", draw: "Argentina Win @ 1.50" },
+  { id: 5, league: "🇩🇪 Bundesliga PO", home: "Hamburger SV", away: "Magdeburg", time: "15:30", pick: "Over 2.5 Goals", odds: 1.90, prob: 79, ev: "+6.2%", units: 1.5, tag: "VALUE" as PickTag, status: "won" as PickStatus, corners: "Over 10.5 Corners", btts: "Both Teams Score", handicap: "HSV -0.5", bookings: "Over 4.5 Cards", draw: "Draw @ 3.40" },
+  { id: 6, league: "🇳🇱 Eredivisie PO", home: "Groningen", away: "NAC Breda", time: "19:00", pick: "Over 2.5 Goals", odds: 1.85, prob: 80, ev: "+8.0%", units: 2, tag: "VALUE" as PickTag, status: "pending" as PickStatus, corners: "Over 9.5 Corners", btts: "Both Teams Score", handicap: "Groningen -0.5", bookings: "Over 3.5 Cards", draw: "Draw @ 3.20" },
+];
+
+export const SUBTABS = [
+  { key: "over25", label: "Over 2.5 Goals", icon: "⚽" },
+  { key: "corners", label: "Corners", icon: "📐" },
+  { key: "handicap", label: "Handicap", icon: "⚖️" },
+  { key: "bookings", label: "Bookings", icon: "🟨" },
+  { key: "draw", label: "Draw Bets", icon: "🤝" },
+  { key: "btts", label: "BTTS / +1.5", icon: "🥅" },
+];
+
+export const TRACKER_DATA = [
+  { date: "31 May", league: "Copa Sudamericana", pick: "Fluminense Over 2.5", odds: 1.80, units: 2, result: "pending" as const, pnl: null as number | null },
+  { date: "30 May", league: "WC Friendly", pick: "Brazil vs Mexico BTTS", odds: 1.78, units: 2, result: "won" as const, pnl: 1.56 },
+  { date: "29 May", league: "WC Friendly", pick: "Egypt Over 2.5", odds: 1.85, units: 1.5, result: "won" as const, pnl: 1.28 },
+  { date: "29 May", league: "Brasileirao", pick: "Santos BTTS", odds: 1.78, units: 2, result: "won" as const, pnl: 1.56 },
+  { date: "28 May", league: "Scottish Cup", pick: "Partick O3.5 Cards", odds: 1.75, units: 2, result: "won" as const, pnl: 1.50 },
+  { date: "27 May", league: "Bundesliga", pick: "Bayern Over 2.5", odds: 1.55, units: 3, result: "won" as const, pnl: 1.65 },
+  { date: "27 May", league: "MLB", pick: "Dodgers ML", odds: 1.95, units: 2, result: "won" as const, pnl: 1.90 },
+  { date: "26 May", league: "MLS", pick: "Miami Over 2.5", odds: 1.75, units: 2, result: "lost" as const, pnl: -2.00 },
+  { date: "25 May", league: "WTA", pick: "Swiatek -3.5 Games", odds: 1.80, units: 2, result: "won" as const, pnl: 1.60 },
+  { date: "24 May", league: "NBA", pick: "Warriors Over 219.5", odds: 1.87, units: 1.5, result: "won" as const, pnl: 1.31 },
+];
+
+export const AFFILIATES = [
+  { name: "Mike T.", plan: "Pro", earned: 19.80, status: "active" as const },
+  { name: "Sarah K.", plan: "Elite", earned: 39.80, status: "active" as const },
+  { name: "James R.", plan: "Starter", earned: 5.80, status: "active" as const },
+  { name: "Priya M.", plan: "Pro", earned: 19.80, status: "active" as const },
+  { name: "Carlos D.", plan: "Pro", earned: 19.80, status: "churned" as const },
+];
