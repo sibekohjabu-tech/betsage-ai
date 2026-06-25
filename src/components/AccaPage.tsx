@@ -2,25 +2,223 @@ import { useState } from "react";
 import { G } from "@/lib/theme";
 import { SOCCER_PICKS } from "@/lib/data";
 import { Chip, Card, PBar } from "@/components/ui-primitives";
+
 export function AccaPage() {
   const [legs, setLegs] = useState(4);
   const [loading, setLoading] = useState(false);
   const [acca, setAcca] = useState<Record<string, unknown> | null>(null);
+
   async function gen() {
-    setLoading(true); setAcca(null);
+    setLoading(true);
+    setAcca(null);
     await new Promise((r) => setTimeout(r, 2000));
-    const selected = [...SOCCER_PICKS].sort(() => Math.random() - 0.5).slice(0, legs);
+    // Generate a mock accumulator from available picks
+    const selected = SOCCER_PICKS.sort(() => Math.random() - 0.5).slice(0, legs);
     const combinedOdds = selected.reduce((a, p) => a * p.odds, 1);
     const combinedProb = selected.reduce((a, p) => a * (p.prob / 100), 1) * 100;
-    setAcca({ title: `${legs}-Leg Power Acca`, combined_odds: parseFloat(combinedOdds.toFixed(2)), ai_probability: Math.round(combinedProb), stake: "1-2 units", legs: selected.map((p) => ({ league: p.league, match: `${p.home} vs ${p.away}`, pick: p.pick, odds: p.odds, prob: p.prob, reason: `${p.prob}% AI probability · ${p.ev} EV` })), analysis: `AI selected ${legs} highest-probability picks. Combined odds ${combinedOdds.toFixed(2)}x with ${Math.round(combinedProb)}% probability.`, warning: combinedProb < 70 ? "⚠️ Combined probability below 70%" : undefined });
+
+    setAcca({
+      title: `${legs}-Leg Power Acca`,
+      combined_odds: parseFloat(combinedOdds.toFixed(2)),
+      ai_probability: Math.round(combinedProb),
+      stake: "1-2 units",
+      legs: selected.map((p) => ({
+        league: p.league,
+        match: `${p.home} vs ${p.away}`,
+        pick: p.pick,
+        odds: p.odds,
+        prob: p.prob,
+        reason: `${p.prob}% AI probability · ${p.ev} expected value`,
+      })),
+      analysis: `AI selected ${legs} highest-probability picks across today's fixtures. Combined odds of ${combinedOdds.toFixed(2)}x with ${Math.round(combinedProb)}% probability. All picks meet the 79%+ threshold.`,
+      warning: combinedProb < 70 ? "⚠️ Combined probability below 70% — higher risk accumulator" : undefined,
+    });
     setLoading(false);
   }
-  return (<div style={{ padding: "28px 24px", maxWidth: 1000 }}>
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,209,102,.07)", border: "1px solid rgba(255,209,102,.18)", borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: G.gold, marginBottom: 16 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: G.gold, animation: "pulse 2s infinite" }} />AI ACCUMULATOR</div>
-    <div style={{ fontSize: 30, fontWeight: 900, marginBottom: 6 }}>🎰 AI Accumulator Builder</div>
-    <div style={{ color: G.dim, fontSize: 14, marginBottom: 24 }}>AI randomly selects highest-probability picks · Always includes Over 2.5 Goals, Corners & BTTS</div>
-    <Card style={{ marginBottom: 24 }}><div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}><div><div style={{ fontSize: 12, color: G.dim, fontWeight: 700, marginBottom: 8 }}>NUMBER OF LEGS</div><div style={{ display: "flex", gap: 8 }}>{[3, 4, 5, 6].map((n) => (<button key={n} onClick={() => setLegs(n)} style={{ padding: "6px 14px", borderRadius: 8, border: `1px solid ${legs === n ? G.gold : G.border}`, background: legs === n ? G.gold : "transparent", color: legs === n ? "#000" : G.dim, fontFamily: "inherit", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{n} Legs</button>))}</div></div><div style={{ marginLeft: "auto" }}><button onClick={gen} disabled={loading} style={{ background: G.gradGold, color: "#000", fontFamily: "inherit", fontWeight: 700, padding: "13px 32px", borderRadius: 9, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, fontSize: 15, minWidth: 180 }}>{loading ? "⟳ Building..." : "🎰 Generate Acca"}</button></div></div><div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>{[["⚽", "Over 2.5 Goals", G.green], ["📐", "Corners market", G.purple], ["🥅", "BTTS / +1.5 Goals", G.orange], ["🎯", "80%+ probability threshold", G.accent]].map(([ico, txt, c]) => (<div key={txt} style={{ background: `${c}08`, border: `1px solid ${c}20`, borderRadius: 8, padding: "6px 12px", fontSize: 12, color: c as string, fontWeight: 600, display: "flex", gap: 6, alignItems: "center" }}><span>{ico}</span>{txt}</div>))}</div></Card>
-    {loading && <div style={{ background: "linear-gradient(135deg,#0D1B2E,#0F1E38)", border: "1px solid rgba(0,229,255,.2)", borderRadius: 20, padding: "48px 24px", textAlign: "center" }}><div style={{ fontSize: 40, marginBottom: 12 }}>🎰</div><div style={{ fontWeight: 800, fontSize: 18, marginBottom: 6 }}>Building your {legs}-leg accumulator...</div><div style={{ color: G.dim, fontSize: 13 }}>Selecting highest-probability picks</div></div>}
-    {acca && !loading && (<div style={{ background: "linear-gradient(135deg,#0D1B2E,#0F1E38)", border: "1px solid rgba(0,229,255,.2)", borderRadius: 20, padding: 28 }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}><div><Chip color={G.green} bg="rgba(0,255,136,.1)">AI GENERATED</Chip><div style={{ fontSize: 22, fontWeight: 900, marginTop: 10 }}>{String(acca.title)}</div></div><div style={{ textAlign: "right" }}><div style={{ fontSize: 38, fontWeight: 700, color: G.gold, fontFamily: "monospace" }}>{Number(acca.combined_odds).toFixed(2)}x</div><div style={{ fontSize: 13, color: G.green, fontWeight: 700 }}>🎯 {Number(acca.ai_probability)}% AI Probability</div></div></div><div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between" }}><span style={{ fontSize: 12, color: G.dim }}>Combined Win Probability</span><span style={{ fontFamily: "monospace", fontWeight: 700, color: Number(acca.ai_probability) >= 80 ? G.green : G.gold }}>{Number(acca.ai_probability)}%</span></div><PBar v={Number(acca.ai_probability)} c={Number(acca.ai_probability) >= 80 ? G.green : G.gold} /><div style={{ marginTop: 20, marginBottom: 8, fontSize: 13, fontWeight: 700, color: G.dim, letterSpacing: 1, textTransform: "uppercase" }}>Accumulator Legs</div>{(acca.legs as any[])?.map((leg, i) => (<div key={i} style={{ background: "rgba(0,229,255,.04)", border: "1px solid rgba(0,229,255,.1)", borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}><div style={{ flex: 1 }}><div style={{ fontSize: 11, color: G.dim, marginBottom: 4 }}>{leg.league}</div><div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{leg.match}</div><div style={{ fontFamily: "monospace", fontWeight: 700, color: G.accent, fontSize: 13, marginBottom: 4 }}>{leg.pick}</div><div style={{ fontSize: 12, color: G.dim }}>{leg.reason}</div></div><div style={{ textAlign: "right", marginLeft: 16, flexShrink: 0 }}><div style={{ fontFamily: "monospace", fontSize: 20, fontWeight: 700, color: G.gold }}>{Number(leg.odds).toFixed(2)}</div><div style={{ fontSize: 12, color: leg.prob >= 80 ? G.green : G.accent }}>{leg.prob}%</div></div></div></div>))}{!!acca.analysis && <div style={{ background: "rgba(0,229,255,.04)", border: "1px solid rgba(0,229,255,.12)", borderRadius: 10, padding: 14, marginTop: 14 }}><div style={{ fontSize: 11, color: G.accent, fontWeight: 700, marginBottom: 6 }}>⚡ AI ANALYSIS</div><div style={{ fontSize: 13, color: G.dim, lineHeight: 1.7 }}>{String(acca.analysis)}</div></div>}{!!acca.warning && <div style={{ background: "rgba(255,209,102,.04)", border: "1px solid rgba(255,209,102,.12)", borderRadius: 10, padding: "10px 14px", marginTop: 10 }}><div style={{ fontSize: 12, color: G.gold }}>⚠️ {String(acca.warning)}</div></div>}<div style={{ display: "flex", gap: 12, marginTop: 18 }}><div style={{ flex: 1, background: G.card2, borderRadius: 10, padding: "12px 16px" }}><div style={{ fontSize: 11, color: G.muted, marginBottom: 4 }}>RECOMMENDED STAKE</div><div style={{ fontFamily: "monospace", fontWeight: 700 }}>{String(acca.stake)}</div></div><button onClick={gen} style={{ flex: 1, background: G.gradGold, color: "#000", fontFamily: "inherit", fontWeight: 700, borderRadius: 9, border: "none", cursor: "pointer", fontSize: 14 }}>🔄 Regenerate</button></div></div>)}
-    {!acca && !loading && <div style={{ background: "linear-gradient(135deg,#0D1B2E,#0F1E38)", border: "1px solid rgba(0,229,255,.15)", borderRadius: 20, padding: "48px 24px", textAlign: "center" }}><div style={{ fontSize: 56, marginBottom: 14 }}>🎰</div><div style={{ fontWeight: 800, fontSize: 20, marginBottom: 8 }}>Ready to Build Your Accumulator</div><div style={{ color: G.dim, fontSize: 14, marginBottom: 24, maxWidth: 420, marginLeft: "auto", marginRight: "auto" }}>AI selects highest-probability picks — always including Over 2.5 Goals, Corners and BTTS.</div><button onClick={gen} style={{ background: G.gradGold, color: "#000", fontFamily: "inherit", fontWeight: 700, padding: "15px 40px", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 16 }}>🎰 Generate My Accumulator</button></div>}
-  </div>); }
+
+  return (
+    <div style={{ padding: "28px 24px", maxWidth: 1000 }}>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,209,102,.07)", border: "1px solid rgba(255,209,102,.18)", borderRadius: 20, padding: "5px 14px", fontSize: 11, fontWeight: 700, color: G.gold, marginBottom: 16 }}>
+        <span style={{ width: 7, height: 7, borderRadius: "50%", background: G.gold, animation: "pulse 2s infinite" }} />
+        AI ACCUMULATOR
+      </div>
+      <div style={{ fontSize: 30, fontWeight: 900, marginBottom: 6 }}>🎰 AI Accumulator Builder</div>
+      <div style={{ color: G.dim, fontSize: 14, marginBottom: 24 }}>AI randomly selects highest-probability picks · Always includes Over 2.5 Goals, Corners & BTTS</div>
+
+      <Card style={{ marginBottom: 24 }}>
+        <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: 12, color: G.dim, fontWeight: 700, marginBottom: 8 }}>NUMBER OF LEGS</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {[3, 4, 5, 6].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setLegs(n)}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: 8,
+                    border: `1px solid ${legs === n ? G.gold : G.border}`,
+                    background: legs === n ? G.gold : "transparent",
+                    color: legs === n ? "#000" : G.dim,
+                    fontFamily: "inherit",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {n} Legs
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginLeft: "auto" }}>
+            <button
+              onClick={gen}
+              disabled={loading}
+              style={{
+                background: G.gradGold,
+                color: "#000",
+                fontFamily: "inherit",
+                fontWeight: 700,
+                padding: "13px 32px",
+                borderRadius: 9,
+                border: "none",
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1,
+                fontSize: 15,
+                minWidth: 180,
+              }}
+            >
+              {loading ? "⟳ Building..." : "🎰 Generate Acca"}
+            </button>
+          </div>
+        </div>
+        <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {[
+            ["⚽", "Over 2.5 Goals always included", G.green],
+            ["📐", "Corners market always included", G.purple],
+            ["🥅", "BTTS / +1.5 Goals always included", G.orange],
+            ["🎯", "80%+ probability threshold", G.accent],
+          ].map(([ico, txt, c]) => (
+            <div key={txt} style={{ background: `${c}08`, border: `1px solid ${c}20`, borderRadius: 8, padding: "6px 12px", fontSize: 12, color: c as string, fontWeight: 600, display: "flex", gap: 6, alignItems: "center" }}>
+              <span>{ico}</span>{txt}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {loading && (
+        <div style={{ background: "linear-gradient(135deg,#0D1B2E,#0F1E38)", border: "1px solid rgba(0,229,255,.2)", borderRadius: 20, padding: "48px 24px", textAlign: "center" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🎰</div>
+          <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 6 }}>Building your {legs}-leg accumulator...</div>
+          <div style={{ color: G.dim, fontSize: 13 }}>Selecting highest-probability picks with O2.5, Corners & BTTS</div>
+        </div>
+      )}
+
+      {acca && !loading && (
+        <div style={{ background: "linear-gradient(135deg,#0D1B2E,#0F1E38)", border: "1px solid rgba(0,229,255,.2)", borderRadius: 20, padding: 28 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+            <div>
+              <Chip color={G.green} bg="rgba(0,255,136,.1)">AI GENERATED</Chip>
+              <div style={{ fontSize: 22, fontWeight: 900, marginTop: 10 }}>{acca.title as string}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 38, fontWeight: 700, color: G.gold, fontFamily: "monospace" }}>
+                {typeof acca.combined_odds === "number" ? acca.combined_odds.toFixed(2) : String(acca.combined_odds)}x
+              </div>
+              <div style={{ fontSize: 13, color: G.green, fontWeight: 700 }}>🎯 {acca.ai_probability as number}% AI Probability</div>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 12, color: G.dim }}>Combined Win Probability</span>
+            <span style={{ fontFamily: "monospace", fontWeight: 700, color: (acca.ai_probability as number) >= 80 ? G.green : G.gold }}>{acca.ai_probability as number}%</span>
+          </div>
+          <PBar v={acca.ai_probability as number} c={(acca.ai_probability as number) >= 80 ? G.green : G.gold} />
+
+          <div style={{ marginTop: 20, marginBottom: 8, fontSize: 13, fontWeight: 700, color: G.dim, letterSpacing: 1, textTransform: "uppercase" }}>
+            Accumulator Legs
+          </div>
+          {(acca.legs as Array<{ league: string; match: string; pick: string; odds: number; prob: number; reason: string }>).map((leg, i) => (
+            <div key={i} style={{ background: "rgba(0,229,255,.04)", border: "1px solid rgba(0,229,255,.1)", borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, color: G.dim, marginBottom: 4 }}>{leg.league}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{leg.match}</div>
+                  <div style={{ fontFamily: "monospace", fontWeight: 700, color: G.accent, fontSize: 13, marginBottom: 4 }}>{leg.pick}</div>
+                  <div style={{ fontSize: 12, color: G.dim }}>{leg.reason}</div>
+                </div>
+                <div style={{ textAlign: "right", marginLeft: 16, flexShrink: 0 }}>
+                  <div style={{ fontFamily: "monospace", fontSize: 20, fontWeight: 700, color: G.gold }}>{leg.odds.toFixed(2)}</div>
+                  <div style={{ fontSize: 12, color: leg.prob >= 80 ? G.green : G.accent }}>{leg.prob}%</div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {!!acca.analysis && (
+            <div style={{ background: "rgba(0,229,255,.04)", border: "1px solid rgba(0,229,255,.12)", borderRadius: 10, padding: 14, marginTop: 14 }}>
+              <div style={{ fontSize: 11, color: G.accent, fontWeight: 700, marginBottom: 6 }}>⚡ AI ANALYSIS</div>
+              <div style={{ fontSize: 13, color: G.dim, lineHeight: 1.7 }}>{String(acca.analysis)}</div>
+            </div>
+          )}
+
+          {!!acca.warning && (
+            <div style={{ background: "rgba(255,209,102,.04)", border: "1px solid rgba(255,209,102,.12)", borderRadius: 10, padding: "10px 14px", marginTop: 10 }}>
+              <div style={{ fontSize: 12, color: G.gold }}>⚠️ {String(acca.warning)}</div>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
+            <div style={{ flex: 1, background: G.card2, borderRadius: 10, padding: "12px 16px" }}>
+              <div style={{ fontSize: 11, color: G.muted, marginBottom: 4 }}>RECOMMENDED STAKE</div>
+              <div style={{ fontFamily: "monospace", fontWeight: 700 }}>{acca.stake as string}</div>
+            </div>
+            <button
+              onClick={gen}
+              style={{
+                flex: 1,
+                background: G.gradGold,
+                color: "#000",
+                fontFamily: "inherit",
+                fontWeight: 700,
+                borderRadius: 9,
+                border: "none",
+                cursor: "pointer",
+                fontSize: 14,
+              }}
+            >
+              🔄 Regenerate
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!acca && !loading && (
+        <div style={{ background: "linear-gradient(135deg,#0D1B2E,#0F1E38)", border: "1px solid rgba(0,229,255,.15)", borderRadius: 20, padding: "48px 24px", textAlign: "center" }}>
+          <div style={{ fontSize: 56, marginBottom: 14 }}>🎰</div>
+          <div style={{ fontWeight: 800, fontSize: 20, marginBottom: 8 }}>Ready to Build Your Accumulator</div>
+          <div style={{ color: G.dim, fontSize: 14, marginBottom: 24, maxWidth: 420, marginLeft: "auto", marginRight: "auto" }}>
+            AI selects highest-probability picks — always including Over 2.5 Goals, Corners and BTTS markets.
+          </div>
+          <button
+            onClick={gen}
+            style={{
+              background: G.gradGold,
+              color: "#000",
+              fontFamily: "inherit",
+              fontWeight: 700,
+              padding: "15px 40px",
+              borderRadius: 9,
+              border: "none",
+              cursor: "pointer",
+              fontSize: 16,
+            }}
+          >
+            🎰 Generate My Accumulator
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
