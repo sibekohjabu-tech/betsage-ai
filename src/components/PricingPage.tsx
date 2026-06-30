@@ -21,18 +21,13 @@ export function PricingPage({ onSelect }: PricingPageProps) {
         Simple, <span style={{ color: G.accent }}>Transparent</span> Pricing
       </div>
       <div style={{ color: G.dim, fontSize: 15, marginBottom: 28 }}>Start free for 7 days. No charge until trial ends. Cancel anytime.</div>
-
-      {/* Trial banner */}
       <div style={{ background: "rgba(0,255,136,.06)", border: "1px solid rgba(0,255,136,.2)", borderRadius: 14, padding: "18px 22px", marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
         <div>
           <div style={{ fontWeight: 800, fontSize: 17, color: G.green, marginBottom: 4 }}>🎁 7 Days Free — No Card Charged Today</div>
           <div style={{ fontSize: 13, color: G.dim }}>Enter your card to reserve your spot. Cancel before {ted} and pay nothing.</div>
         </div>
         <div style={{ display: "flex", gap: 24 }}>
-          {[
-            ["Day 1–7", "FREE"],
-            ["Day 8+", "Billed monthly"],
-          ].map(([d, v]) => (
+          {[ ["Day 1–7", "FREE"], ["Day 8+", "Billed monthly"] ].map(([d, v]) => (
             <div key={d} style={{ textAlign: "center" }}>
               <div style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 16, color: G.green }}>{v}</div>
               <div style={{ fontSize: 11, color: G.dim }}>{d}</div>
@@ -40,36 +35,11 @@ export function PricingPage({ onSelect }: PricingPageProps) {
           ))}
         </div>
       </div>
-
-      {/* Plans grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 32 }}>
         {PLANS.map((plan) => (
-          <div
-            key={plan.id}
-            style={{
-              background: G.card,
-              border: `1px solid ${plan.badge === "MOST POPULAR" ? G.green + "33" : G.border}`,
-              borderRadius: 20,
-              padding: "32px 28px",
-              position: "relative",
-            }}
-          >
+          <div key={plan.id} style={{ background: G.card, border: `1px solid ${plan.badge === "MOST POPULAR" ? G.green + "33" : G.border}`, borderRadius: 20, padding: "32px 28px", position: "relative" }}>
             {plan.badge && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: -14,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  background: plan.badge === "MOST POPULAR" ? G.grad : G.gradGold,
-                  color: "#000",
-                  fontWeight: 800,
-                  fontSize: 10,
-                  padding: "4px 16px",
-                  borderRadius: 20,
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: plan.badge === "MOST POPULAR" ? G.grad : G.gradGold, color: "#000", fontWeight: 800, fontSize: 10, padding: "4px 16px", borderRadius: 20, whiteSpace: "nowrap" }}>
                 {plan.badge}
               </div>
             )}
@@ -89,38 +59,18 @@ export function PricingPage({ onSelect }: PricingPageProps) {
                 </div>
               ))}
             </div>
-            <button
-              onClick={() => onSelect(plan)}
-              style={{
-                width: "100%",
-                padding: 14,
-                background: plan.badge === "MOST POPULAR" ? G.gradGreen : "transparent",
-                color: plan.badge === "MOST POPULAR" ? "#000" : G.text,
-                border: `1px solid ${plan.badge ? "transparent" : G.border}`,
-                borderRadius: 9,
-                fontFamily: "inherit",
-                fontWeight: 700,
-                fontSize: 14,
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={() => onSelect(plan)} style={{ width: "100%", padding: 14, background: plan.badge === "MOST POPULAR" ? G.gradGreen : "transparent", color: plan.badge === "MOST POPULAR" ? "#000" : G.text, border: `1px solid ${plan.badge ? "transparent" : G.border}`, borderRadius: 9, fontFamily: "inherit", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
               Start Free Trial →
             </button>
             <div style={{ textAlign: "center", fontSize: 11, color: G.muted, marginTop: 8 }}>No charge for 7 days</div>
           </div>
         ))}
       </div>
-
-      {/* MRR Calculator */}
       <Card style={{ textAlign: "center" }}>
         <div style={{ fontSize: 22, fontWeight: 900, marginBottom: 4 }}>Path to $5K/Month MRR</div>
         <div style={{ color: G.dim, fontSize: 13, marginBottom: 20 }}>Subscriptions + 20% affiliate commissions = compounding growth</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-          {[
-            { n: 51, plan: "Pro $99", mrr: "$5,049" },
-            { n: 173, plan: "Starter $29", mrr: "$5,017" },
-            { n: 25, plan: "Elite $199", mrr: "$4,975" },
-          ].map((r) => (
+          {[ { n: 51, plan: "Pro $99", mrr: "$5,049" }, { n: 173, plan: "Starter $29", mrr: "$5,017" }, { n: 25, plan: "Elite $199", mrr: "$4,975" } ].map((r) => (
             <div key={r.plan} style={{ background: G.bg, borderRadius: 12, padding: 20 }}>
               <div style={{ fontFamily: "monospace", fontSize: 30, fontWeight: 700, color: G.green }}>{r.n}</div>
               <div style={{ fontSize: 12, color: G.dim, margin: "4px 0 8px" }}>{r.plan} subs</div>
